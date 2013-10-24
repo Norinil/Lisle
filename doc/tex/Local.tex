@@ -1,0 +1,106 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Local}
+
+Programs sometimes need global or static variables that have different
+values in different threads. Since threads share one memory space,
+this cannot be achieved with regular variables. The
+\class{Local} class is the \lisle threads answer to this need.
+
+Each thread possesses a private memory block, the thread-specific data
+area, or TSD area for short. This area is accessible with objects of
+the \class{Local} class. Each instance of the
+\class{Local} class is common to all threads, but the value
+associated with a given \code{Local} can be different in each
+thread.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Local>
+
+template <typename T>
+class Local
+{
+public:
+  ~Local ();
+  Local ()
+    throw (resource);
+  T& operator = (const T& data)
+    throw (resource);
+  operator T* ()
+    throw ();
+  operator T* () const
+    throw ();
+  T* operator -> ()
+    throw ();
+  T* operator -> () const
+    throw ();
+private:
+  // @textnit$Disable cloning?
+  Local (const Local&);
+  Local& operator = (const Local&);
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} TSD, releasing all used resources.
+
+  \constructor{}
+  Constructs \farg{this} TSD. Notice the abscence of a constructor
+  with default argument. It is not possible to construct a TSD with an
+  initial value other than \code{NULL}. Each thread \emph{must}
+  initialize its ``instance'' of \farg{this} TSD with the assignment
+  operator (see below).
+  \begin{exception}
+    \item[resource] is thrown if the TSD area space is
+      exhausted.
+  \end{exception}
+
+  \operator{T\&}{=}{=}{const T\& data}
+  Assigns some \farg{data} to \farg{this} TSD. Returns a reference to
+  the stored data for assignment operation chaining.
+  
+  This operator uses \code{T::operator =} to store \farg{data} in
+  \farg{this} TSD. Depending on the implementation of the \code{=}
+  operator for a given \code{T} class, especially for containers,
+  what will finally be stored in \farg{this} TSD may vary (data or
+  pointer).
+  
+  Assigning data to \farg{this} TSD is \emph{mandatory} before using
+  data stored in \farg{this} TSD. At least one assignment has to be
+  done before \farg{this} TSD can be used with the casting operators
+  described below.  As analogy consider \farg{this} TSD as a pointer,
+  set to \code{NULL}. As long as a pointer is not initialized with
+  \code{new}, \code{malloc} or assignment to an initialized pointer it
+  can't be used without the risk of memory leaks. It is the same for
+  TSDs. The only difference is that only this assigment operator is
+  available for initializing \farg{this} TSD. Note that the
+  initialization (aka assignment) \emph{must} be done once in
+  \emph{each} thread.
+
+  \begin{exception}
+    \item[resource] is thrown if there was not enough
+      memory to store one item of type \code{T} in the calling
+      thread's memory space (the shared memory space, not the TSD
+      area).
+  \end{exception}
+
+  \operator{}{T*}{T*}{}
+  Returns the pointer to the data stored in \farg{this} TSD.
+  \operator[const]{}{T*}{const T*}{}
+  Returns the pointer to the data stored in \farg{this} TSD.
+
+  \operator{T*}{->}{-$>$}{}
+  Returns the pointer to the data stored in \farg{this} TSD, giving
+  access to data and function members if \code{T} is a structure or a
+  class.
+  \operator[const]{T*}{->}{-$>$}{}
+  Returns the pointer to the data stored in \farg{this} TSD, giving
+  access to data and function members if \code{T} is a structure or a
+  class.
+
+\end{mandescription}
+
+\end{classpage}

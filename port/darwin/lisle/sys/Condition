@@ -1,0 +1,122 @@
+// -*- mode:C++ -*-
+///////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (C) 2002-2003, Markus Schutz
+//
+// This library is free software. You can redistribute  and/or  modify it under
+// the terms of the GNU Lesser General Public License  as published by the Free
+// Software Foundation.  Either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful,  but WITHOUT
+// ANY  WARRANTY.  Without  even  the  implied  warranty  of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
+// for more details.
+//
+// You should have received  a  copy  of  the GNU Lesser General Public License
+// along with this library. If not, write to the Free Software Foundation, Inc,
+// 59  Temple Place,  Suite 330,  Boston,  MA  02111-1307  USA,  or consult URL
+// http://www.gnu.org/licenses/lgpl.html.
+//
+///////////////////////////////////////////////////////////////////////////////
+//
+// $Id: Condition 3516 2006-07-30 21:57:27Z schutzm $
+//
+// Project URL: http://lyric.sourceforge.net
+//
+// Description:
+//   Darwin inlined implementation of Lisle Condition.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+
+#include <lyric/Thread.hpp>
+#include <lyric/Assert.hpp>
+
+
+//===========================================================================//
+inline Condition
+::~Condition ()
+	throw (Exception::Thread::Permission)
+{
+	int rc;
+
+	rc = pthread_cond_destroy(&cond_);
+	Assert(rc != EBUSY, Exception::Thread::Permission(this, Thread::Id()));
+	Assert(rc == 0, Exception(this, rc));   // Lisle error detector
+}
+//---------------------------------------------------------------------------//
+
+//===========================================================================//
+inline Condition
+::Condition (Mutex& mutex)
+	: mutex_(mutex)
+{
+	pthread_cond_init(&cond_, NULL);
+}
+//---------------------------------------------------------------------------//
+
+//===========================================================================//
+inline void Condition
+::signal ()
+{
+	pthread_cond_signal(&cond_);
+}
+//---------------------------------------------------------------------------//
+
+//===========================================================================//
+inline void Condition
+::broadcast ()
+{
+	pthread_cond_broadcast(&cond_);
+}
+//---------------------------------------------------------------------------//
+
+//===========================================================================//
+/* If mutex is not locked before entrance:
+ *   switch (mutex.type())
+ *     {
+ *     case Mutex::Normal : deadlock;
+ *     case Mutex::Detect :
+ *     case Mutex::Recursive : throw exception;
+ *     }
+ */
+inline void Condition
+::wait ()
+	throw(Exception::Thread::Permission)
+{
+	if (mutex_.type() != Mutex::Normal)
+		Assert(pthread_equal(mutex_.mutex_.owner, pthread_self()),
+		       Exception::Thread::Permission(this, Thread::Id()));
+	pthread_cond_wait(&cond_, &mutex_.mutex_.the);
+}
+//---------------------------------------------------------------------------//
+
+//===========================================================================//
+/* If mutex is not locked before entrance:
+ *   switch (mutex.type())
+ *     {
+ *     case Mutex::Normal : deadlock;
+ *     case Mutex::Detect :
+ *     case Mutex::Recursive : throw exception;
+ *     }
+ */
+inline void Condition
+::wait (const Time& abstime)
+	throw (Exception::Thread::Permission, Exception::Timeout)
+{
+	int             rc;
+	struct timespec ts;
+
+	if (mutex_.type() != Mutex::Normal)
+		Assert(pthread_equal(mutex_.mutex_.owner, pthread_self()),
+		       Exception::Thread::Permission(this, Thread::Id()));
+	ts.tv_sec = 3600*abstime.hour() + 60*abstime.min() + abstime.sec();
+	ts.tv_nsec = abstime.nsec();
+	rc = pthread_cond_timedwait(&cond_, &mutex_.mutex_.the, &ts);
+	Assert(rc != ETIMEDOUT, Exception::Timeout(this));
+}
+//---------------------------------------------------------------------------//
+
+//===========================================================================//
+//---------------------------------------------------------------------------//

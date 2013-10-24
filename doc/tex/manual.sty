@@ -1,0 +1,793 @@
+%%=============================================================================
+%%
+%% This is file 'manual.sty', generated manually.
+%%
+%% A LaTeX style to produce manuals.
+%%
+%% Can be transformed to:
+%%   DVI, PDF : Paper & display
+%%   HTML     : Browser, online documentation
+%%   manpage  : SysV man-page (once the TeX4HT -> manpage transform
+%%              will be writen).
+%%
+%%=============================================================================
+%% Preamble
+%%
+\NeedsTeXFormat{LaTeX2e}
+\def\fileversion{0.9}
+\def\filedate{2003/03/20}
+\ProvidesPackage{manual}
+\RequirePackage{fancyvrb,varioref}
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Ifs
+%%
+\newif\ifpdfman
+\ifx\pdfoutput\undefined
+  \pdfmanfalse                % We are not running PDFLaTeX
+\else
+  \pdfoutput=1             % We are running PDFLaTeX
+  \pdfmantrue
+\fi
+\newif\ifhtml
+\ifx\HCode\undefined
+  \htmlfalse               % We are not running TeX4HT
+\else
+  \htmltrue                % We are running TeX4HT
+\fi
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Lengths
+%%
+\newlength{\manrtasep}
+\setlength{\manrtasep}{\parindent}
+\newlength{\postmtcsep}
+\setlength{\postmtcsep}{7ex}
+\newlength{\manwarnsep}
+\setlength{\manwarnsep}{\parindent}
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Commands
+%%
+\providecommand{\includefboxedgraphics}[2][]{\fbox{\includegraphics[#1]{#2}}}
+\providecommand{\manlayout}{hcompact}
+\providecommand{\mantextlabel}[1]{\texttt{#1}}
+\providecommand{\mantextlabelattrib}[1]{\textsf{\textsl{#1}}}
+\providecommand{\textnit}[1]{\textnormal{\textit{#1}}}
+\providecommand{\vcom}[1]{\textnormal{\textit{#1}}}   % Comment in verbatim
+\providecommand{\code}[1]{\texttt{#1}}
+\providecommand{\wcode}[1]{\textsf{#1}}
+\providecommand{\class}[1]{\textsf{#1}}
+\providecommand{\typename}[1]{\textsf{#1}}
+\providecommand{\farg}[1]{\textit{#1}}
+\providecommand{\except}[1]{\textsf{\textit{#1}}}
+\providecommand{\exreas}[1]{\textit{#1}}
+\providecommand{\manref}[1]{\vref{#1}}
+\providecommand{\chartilde}{\~ \relax}
+\providecommand{\manreturntypename}{\textsf{Returns}}
+\providecommand{\manargumentsname}{\textsf{Arguments}}
+\providecommand{\manwarningname}{\textsf{Warning}}
+\providecommand{\manminitoc}
+  {
+    \ifhtml\else
+      \minitoc
+      \vspace*{\postmtcsep}
+    \fi
+  }
+\newcommand{\warning}[1]
+  {
+    \settowidth\@tempdima{\textsf{\manwarningname}}%
+    \setlength\@tempdimb{\linewidth}%
+    \addtolength\@tempdimb{-\manwarnsep}%
+    \addtolength\@tempdimb{-\@tempdima}%
+    \raisebox{2ex}{\raisebox{\parsep}{}}%
+    \parbox[t]{\@tempdima}{\textsf{\manwarningname}}%
+    \hspace{\manwarnsep}%
+    \parbox[t]{\@tempdimb}{#1}
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Commands and environments that are only valid when nested in
+%% 'manpage' or 'classpage' environments.
+%%
+%% \classtspec = templated class specialization
+\providecommand{\classtspec}[1]
+  {
+    \man@error{Lonely \string\classtspec\space -- perhaps a missin
+      classpage environment}{\@ehc}
+  }
+\providecommand{\classindex}[1]
+  {
+    \man@error{Lonely \string\classindex\space -- perhaps a missing
+      classpage environment}{\@ehc}
+  }
+\providecommand{\mansection}[1]
+  {
+    \man@error{Lonely \string\mansection\space -- perhaps a missing
+      manpage or classpage \@spaces\@spaces\@spaces\@spaces\space\space
+      environment}{\@ehc}
+  }
+\providecommand{\macro}[2]
+  {
+    \man@error{Lonely \string\macro\space -- perhaps a missing
+      mandescription
+      \@spaces\@spaces\@spaces\@spaces\@spaces\@spaces\@spaces\space
+      environment nested in a manpage or classpage environment}{\@ehc}
+  }
+\providecommand{\member}[2]
+  {
+    \man@error{Lonely \string\member\space -- perhaps a missing
+      mandescription
+      \@spaces\@spaces\@spaces\@spaces\@spaces\@spaces\@spaces
+      environment nested in a classpage environment}{\@ehc}
+  }
+\providecommand{\destructor}
+  {
+    \man@error{Lonely \string\destructor\space -- perhaps a missing
+      mandescription
+      \@spaces\@spaces\@spaces\@spaces\@spaces\@spaces
+      environment nested in a classpage environment}{\@ehc}
+  }
+\providecommand{\constructor}[1]
+  {
+    \man@error{Lonely \string\constructor\space -- perhaps a missing
+      mandescription
+      \@spaces\@spaces\@spaces\@spaces\@spaces\space\space\space
+      environment nested in a classpage environment}{\@ehc}
+  }
+\providecommand{\operator}[5]
+  {
+    \man@error{Lonely \string\operator\space -- perhaps a missing
+      mandescription
+      \@spaces\@spaces\@spaces\@spaces\@spaces\@spaces\space\space
+      environment nested in a manpage or classpage environment}{\@ehc}
+  }
+\providecommand{\function}[4]
+  {
+    \man@error{Lonely \string\function\space -- perhaps a missing
+      mandescription
+      \@spaces\@spaces\@spaces\@spaces\@spaces\@spaces\space\space
+      environment nested in a manpage or classpage environment}{\@ehc}
+  }
+\providecommand{\ocoperator}[5]
+  {
+    \man@error{Lonely \string\ocoperator\space -- perhaps a missing
+      mandescription
+      \@spaces\@spaces\@spaces\@spaces\@spaces\@spaces
+      environment nested in a classpage environment}{\@ehc}
+  }
+\providecommand{\ocfunction}[4]
+  {
+    \man@error{Lonely \string\ocfunction\space -- perhaps a missing
+      mandescription
+      \@spaces\@spaces\@spaces\@spaces\@spaces\@spaces
+      environment nested in a classpage environment}{\@ehc}
+  }
+\newenvironment{mandescription}%
+  {
+    \man@error{Lonely mandescription environment -- perhaps a missing
+      manpage \@spaces\@spaces\@spaces\@spaces or classpage
+      environment around it}{\@ehd}
+  }%
+  {
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Environment 'mantitlepage'
+%%
+\newsavebox{\man@box@title}
+\newsavebox{\man@box@author}
+\newsavebox{\man@box@date}
+\newsavebox{\man@box@space}
+\newlength{\man@dima}
+\newlength{\man@dimb}
+\newlength{\man@dimc}
+\newlength{\man@dimd}
+\newenvironment{mantitlepage}%
+  {
+    \centering
+    \sbox{\man@box@date}{\Large\today}
+    \renewcommand{\title}[1]
+      {\sbox{\man@box@title}{\parbox[t]{\textwidth}{\centering##1}}}
+    \renewcommand{\author}[1]
+      {\sbox{\man@box@author}{\parbox[t]{\textwidth}{\centering##1}}}
+    \renewcommand{\date}[1]
+      {\sbox{\man@box@date}{\parbox[t]{\textwidth}{\centering##1}}}
+    \begin{titlepage}
+  }%
+  {
+    \settototalheight{\man@dima}{\usebox{\man@box@title}}
+    \settototalheight{\man@dimb}{\usebox{\man@box@author}}
+    \settototalheight{\man@dimc}{\usebox{\man@box@date}}
+    \setlength{\man@dimd}{\textheight}
+    \addtolength{\man@dimd}{-\man@dima}
+    \addtolength{\man@dimd}{-\man@dimb}
+    \addtolength{\man@dimd}{-\man@dimc}
+    \divide\man@dimd by 7
+    \sbox{\man@box@space}{\parbox[t][\man@dimd]{\textwidth}{\hfill}}
+    \usebox{\man@box@space}
+    \usebox{\man@box@space}
+    \usebox{\man@box@space}
+    \usebox{\man@box@title}
+    \usebox{\man@box@space}
+    \usebox{\man@box@space}
+    \usebox{\man@box@author}
+    \usebox{\man@box@space}
+    \usebox{\man@box@date}
+    \end{titlepage}
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Environment 'manpage'
+%% Targeted to write function manpages. A manpage can document several
+%% functions.
+%% To be used like \begin{document} ... \end{document}.
+%% \begin{manpage}[\depth]{title}
+%%   ...
+%% \end{manpage}
+%% Where:
+%%   depth : The section depth of this manpage (\section, \subsection,
+%%           \subsubsection, ...).
+%%           Default : \section
+%%   title : The title for this manpage. Produces \section{title},
+%%           \index{title}, and \label{sec:title}.
+%% A manpage begins with a \newpage command.
+%%
+\newenvironment{manpage}[2][\section]%
+  {
+    \begin{man@page}[#1]{#2}{manpage}
+  }%
+  {
+    \end{man@page}
+  }
+\newcommand{\man@renewcommands@mandescription@manpage}
+  {
+    %%
+    %% \function[attrib]{returns}{name}{argument1,argument2,...,argumentN}
+    \renewcommand{\function}[4][]
+      {
+        \item[\csname man@function@\manlayout\endcsname{##1}{##2}{##3}{##4}]
+        \@man@indexes{##3}
+      }
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Environment 'classpage'
+%% Targeted to write class manpages. A manpage can document one class
+%% at a time, but all members of a class.
+%% To be used like \begin{document} ... \end{document}.
+%% \begin{classpage}[\depth]{title}
+%%   ...
+%% \end{classpage}
+%% Where:
+%%   depth : The section depth of this manpage (\section, \subsection,
+%%           \subsubsection, ...).
+%%           Default : \section
+%%   title : The name of the class. Produces \section{title},
+%%           \index{title}, and \label{sec:title}.
+%% A classpage is a manpage (see environment 'manpage') with a few
+%% class related definitions or redefinitions.
+%%
+\providecommand{\man@classtitle}{}
+\newenvironment{classpage}[2][\section]%
+  {
+    \renewcommand{\man@classtitle}{#2}
+    \begin{man@page}[#1]{\man@classtitle}{classpage}
+  }%
+  {
+    \end{man@page}
+  }
+\newcommand{\man@renewcommands@mandescription@classpage}
+  {
+    %%
+    %% \classindex{index entry}
+    \renewcommand{\classindex}[1]
+      {
+        \man@classindex{\man@classtitle}{##1}
+      }
+    %%
+    %% \member{type}{name}
+    \renewcommand{\member}[2]
+      {
+        \item[\mantextlabel{##1~##2}]
+        \man@classindex{\man@classtitle}{##2}
+      }
+    %%
+    %% \destructor
+    \renewcommand{\destructor}
+      {
+        \item[\mantextlabel{\chartilde\man@classtitle~()}]
+        \man@classindex{\man@classtitle}{\textit{destructor}}
+      }
+    %%
+    %% \constructor{argument1,argument2,...,argumentN}
+    \renewcommand\constructor[1]
+      {
+        \item[\csname man@constructor@\manlayout\endcsname%
+              {\man@classtitle}{##1}]
+        \man@classindex{\man@classtitle}{\textit{constructor}}
+      }
+    %%
+    %% \operator[attrib]{returns}{name}{index}{argument1,...,argumentN}
+    \renewcommand{\operator}[5][]
+      {
+        \item[\csname man@operator@\manlayout\endcsname{##1}{##2}{##3}{##5}]
+        \man@classindex{\man@classtitle}{\textit{operator} ##4}
+      }
+    %%
+    %% \function[attrib]{returns}{name1,...,nameN}{argument1,...,argumentN}
+    \renewcommand{\function}[4][]
+      {
+        \item[\csname man@function@\manlayout\endcsname{##1}{##2}{##3}{##4}]
+        \man@classindexes{\man@classtitle}{##3}
+      }
+    %%
+    %% \ocoperator[attrib]{returns}{name}{index man}{index sub}
+    %%                    {argument1,...,argumentN}
+    \renewcommand{\ocoperator}[6][]
+      {
+        \item[\csname man@operator@\manlayout\endcsname{##1}{##2}{##3}{##6}]
+        \man@classindex{##4}{\textit{operator} ##5}
+      }
+    %%
+    %% \ocfunction[attrib]{returns}{name}{argument1,...,argumentN}
+    \renewcommand{\ocfunction}[4][]
+      {
+        \item[\csname man@function@\manlayout\endcsname{##1}{##2}{##3}{##4}]
+        \index{##3}
+      }
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Environment 'exception' and 'exreason'
+%% To build exception list descriptions.
+%%
+\newenvironment{exception}%
+  {
+    \begin{list}{}%
+      {
+        \setlength{\topsep}{0.0pt}
+        \setlength{\partopsep}{0.0pt}
+        \renewcommand{\makelabel}[1]{$\triangleright$ \except{##1}}
+      }
+  }%
+  {
+    \end{list}
+  }
+\newenvironment{exreason}%
+  {
+    \begin{list}{}%
+      {
+        \setlength{\topsep}{0.0pt}
+        \setlength{\partopsep}{0.0pt}
+        \renewcommand{\makelabel}[1]{$\diamond$ \exreas{##1}}
+      }
+  }%
+  {
+    \end{list}
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Internal 'man@page' environment
+%% \begin{man@page}[\depth]{manpage|classpage}
+%%   ...
+%% \end{man@page}
+%%
+\providecommand{\man@pagetitle}{}
+\newenvironment{man@page}[3][\section]%
+  {
+    \man@page@init{#1}{#2}{#3}
+  }%
+  {
+    \man@page@fini
+  }
+\newcommand{\man@page@init}[3]
+  {
+    \newpage
+    \renewcommand{\man@pagetitle}{#2}
+    \index{\man@pagetitle|(}
+    #1{\man@pagetitle}
+    \label{sec:\man@pagetitle}
+    \renewcommand{\classtspec}[1]%
+      {
+        \subsection{##1}
+      }
+    \renewcommand{\mansection}[1]%
+      {
+        \man@section{\textsf{\textbf{\large ##1}}}%
+                    {-3.25ex \@plus -1ex \@minus -.2ex}%
+                    {1.5ex \@plus .2ex}
+      }
+    \renewenvironment{mandescription}%
+      {
+        \man@init@mandescription@commands{#3}
+        \begin{list}{}{\man@init@mandescription@makelabel}
+      }%
+      {
+        \end{list}
+      }
+  }
+\newcommand{\man@page@fini}
+  {
+    \index{\man@pagetitle|)}
+  }
+\newsavebox{\man@box@label@md}
+\newcommand{\man@init@mandescription@makelabel}
+  {
+    \renewcommand{\makelabel}[1]
+      {%
+        \setlength{\@tempdima}{0.0pt}%
+        \addtolength{\@tempdima}{\labelwidth}%
+        \addtolength{\@tempdima}{\labelsep}%
+        \addtolength{\@tempdima}{\linewidth}%
+        \addtolength{\@tempdima}{-5.0pt}%   Removes 'Overfull \hbox' messages
+        \savebox{\man@box@label@md}{\parbox[t]{\@tempdima}{##1}}%
+        \settoheight{\@tempdimb}{\usebox{\man@box@label@md}}%
+        \settodepth{\@tempdimc}{\usebox{\man@box@label@md}}%
+        \addtolength{\@tempdimb}{\@tempdimc}%
+        \addtolength{\@tempdimb}{\parsep}%
+        \parbox[t][\@tempdimb]{\@tempdima}{\usebox{\man@box@label@md}}%
+      }
+  }
+\newcommand{\man@init@mandescription@commands}[1]
+  {
+    %%
+    %% \macro{name}{argument1,argument2,...,argumentN}
+    \renewcommand{\macro}[2]%
+      {
+        \item[\csname man@macro@\manlayout\endcsname{##1}{##2}]
+        \index{##1}
+      }
+    \csname man@renewcommands@mandescription@#1\endcsname
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Various "hcompact" (h = horizontal) item constructors for the commands in
+%% mandescription environments.
+%%
+%% \man@macro@compact{name}{argument1,...,argumentN}
+\newcommand{\man@macro@hcompact}[2]
+  {
+    \mantextlabel{#1(\man@makehlist[,]{#2})}
+  }
+%% \man@function@hcompact{attrib}{returns}{name1,...,nameN}{arg1,...,argN}
+\newcommand{\man@function@hcompact}[4]
+  {
+    \setcounter{man@cnta}{0}
+    \foreach\@name:={#3}\do{\stepcounter{man@cnta}}
+    \setcounter{man@cntb}{0}%
+    \foreach\@name:={#3}\do%
+      {%
+        \stepcounter{man@cntb}%
+        \mantextlabel{#2 \@name~(\man@makehlist[, ]{#4})}
+        \mantextlabelattrib{#1}
+        \ifnum\value{man@cntb}<\value{man@cnta}\\\fi
+      }
+  }
+%% \man@operator@hcompact{attrib}{returns}{name}{argument1,...,argumentN}
+\newcommand{\man@operator@hcompact}[4]
+  {
+    \if#2\@empty\else\mantextlabel{#2~}\fi
+    \mantextlabel{\textsl{operator}~#3~(\man@makehlist[, ]{#4})}
+    \mantextlabelattrib{#1}
+  }
+%% \man@constructor@hcompact{class}{argument1,...,argumentN}
+\newcommand{\man@constructor@hcompact}[2]
+  {
+    \mantextlabel{#1~(\man@makehlist[, ]{#2})}
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Various "vcompact" (v = vertical) item constructors for the commands in
+%% mandescription environments.
+%%
+%% \man@macro@vcompact{name}{argument1,...,argumentN}
+\newcommand{\man@macro@vcompact}[2]
+  {
+    \begin{tabular}[t]{@{}l@{}l@{}l@{}}
+      \mantextlabel{#1 (} &
+      \mantextlabel{\man@makevlist[,]{#2}} &
+      \mantextlabel{\man@makevskiped{#2}{)}} \\
+    \end{tabular}
+  }
+%% \man@function@vcompact{attrib}{returns}{name1,...,nameN}{arg1,...,argN}
+\newcommand{\man@function@vcompact}[4]
+  {
+    \setcounter{man@cnta}{0}
+    \foreach\@name:={#3}\do{\stepcounter{man@cnta}}
+    \setcounter{man@cntb}{0}
+    \foreach\@name:={#3}\do%
+      {%
+        \stepcounter{man@cntb}%
+        \begin{tabular}[t]{@{}l@{}l@{}l@{}}
+          \mantextlabel{#2 \@name~(} &
+          \mantextlabel{\man@makevlist[,]{#4}} &
+          \mantextlabel{\man@makevskiped{#4}{) \mantextlabelattrib{#1}}}
+        \end{tabular}
+        \ifnum\value{man@cntb}<\value{man@cnta}\vspace{0.5\parsep}\newline\fi%
+      }
+  }
+%% \man@operator@vcompact{attrib}{returns}{name}{argument1,...,argumentN}
+\newcommand{\man@operator@vcompact}[4]
+  {
+    \begin{tabular}[t]{@{}l@{}l@{}l@{}}
+      \mantextlabel{\if#2\@empty\else#2~\fi\textsl{operator}~#3~(} &
+      \mantextlabel{\man@makevlist[,]{#4}} &
+      \mantextlabel{\man@makevskiped{#4}{) \mantextlabelattrib{#1}}} \\
+    \end{tabular}
+  }
+%% \man@constructor@vcompact{class}{argument1,...,argumentN}
+\newcommand{\man@constructor@vcompact}[2]
+  {
+    \begin{tabular}[t]{@{}l@{}l@{}l@{}}
+      \mantextlabel{#1~(} &
+      \mantextlabel{\man@makevlist[,]{#2}} &
+      \mantextlabel{\man@makevskiped{#2}{)}} \\
+    \end{tabular}
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Build a horizontal list.
+%% \man@makehlist[separator]{argument1,...,argumentN}
+%%
+\newcommand{\man@makehlist}[2][ ]
+  {%
+    \@tempcnta\z@
+    \foreach\@item:={#2}\do{\advance\@tempcnta 1}%
+    \@tempcntb\z@
+    \foreach\@item:={#2}\do%
+      {%
+        \advance\@tempcntb 1%
+        \@item%
+        \ifnum \@tempcntb < \@tempcnta #1\fi%
+      }%
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Build a vertical list.
+%% \man@makevlist[separator]{argument1,...,argumentN}
+%%
+\newcommand{\man@makevlist}[2][]
+  {%
+    \@tempcnta\z@
+    \foreach\@item:={#2}\do{\advance\@tempcnta 1}%
+    \@tempdima\z@
+    \@tempcntb\z@
+    \foreach\@item:={#2}\do%
+      {%
+        \advance\@tempcntb 1%
+        \settowidth{\@tempdimb}{\@item}%
+        \ifnum \@tempcntb < \@tempcnta%
+          \settowidth{\@tempdimc}{#1}%
+        \else%
+          \@tempdimc 0.0pt%
+        \fi%
+        \advance\@tempdimb\@tempdimc
+        \ifdim \@tempdimb > \@tempdima \@tempdima\@tempdimb\fi%
+      }%
+    \parbox[t]{\@tempdima}
+      {
+        \@tempcntb\z@
+        \foreach\@item:={#2}\do%
+          {%
+            \advance\@tempcntb 1%
+            \@item%
+            \ifnum \@tempcntb < \@tempcnta #1\newline\fi%
+          }%
+      }%
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Insert N-1 \newlines to make space then outputs stuff.
+%% \man@makevskip{argument1,...,argumentN=skip}{stuff}
+%%
+\newcommand{\man@makevskiped}[2]
+  {%
+    \@tempcnta\z@
+    \foreach\@item:={#1}\do{\advance\@tempcnta 1}%
+    \@tempcntb 1
+    \settowidth{\@tempdima}{#2}%
+    \parbox[t]{\@tempdima}
+      {
+        \foreach\@item:={#1}\do%
+          {%
+            \advance\@tempcntb 1%
+            \ifnum \@tempcntb < \@tempcnta \hspace{0pt}\newline\fi%
+          }%
+        #2
+      }%
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Internal 'index' commands for class members
+%%
+\newcommand{\man@classindex}[2]{\index{#2!#1}\index{#1!#2}}
+\newcommand{\man@subclassindex}[3]{\index{#2!#1!#3}\index{#1!#2!#3}}
+\newcommand{\man@classindexes}[2]
+  {
+    \foreach\@ciname:={#2}\do{\man@classindex{#1}{\@ciname}}
+  }
+\newcommand{\@man@indexes}[1]
+  {
+    \foreach\@iname:={#1}\do{\index{\@iname}}
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Why is this not in LaTeX?
+%%
+\providecommand{\settototalheight}[2]
+  {
+    \settoheight{#1}{#2}
+    \settodepth{\@tempdima}{#2}
+    \addtolength{#1}{\@tempdima}
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Internal 'mansection' code (from latex.ltx).
+%% Simplified and concatenated since no numbering and no table of
+%% contents entry.
+%%
+%% \man@section{title}{space before}{space after}
+%%
+\newcommand{\man@section}[3]
+  {
+    \if@noskipsec \leavevmode \fi
+    \par
+    \@tempskipa #2\relax
+    \@afterindenttrue
+    \ifdim \@tempskipa <\z@
+      \@tempskipa -\@tempskipa \@afterindentfalse
+    \fi
+    \if@nobreak
+      \everypar{}%
+    \else
+      \addpenalty\@secpenalty\addvspace\@tempskipa
+    \fi
+    \@tempskipa #3\relax
+    \ifdim \@tempskipa>\z@
+      \begingroup{\interlinepenalty\@M\noindent #1\@@par}\endgroup
+      \par \nobreak
+      \vskip \@tempskipa
+      \@afterheading
+    \else
+      \@nobreakfalse
+      \global\@noskipsectrue
+      \everypar{%
+        \if@noskipsec
+          \global\@noskipsecfalse
+          {\setbox\z@\lastbox}%
+          \clubpenalty\@M
+          \begingroup{\noindent #1}\endgroup
+          \unskip
+          \@tempskipa #1\relax
+          \hskip -\@tempskipa
+        \else
+          \clubpenalty \@clubpenalty
+          \everypar{}%
+        \fi}%
+    \fi
+    \ignorespaces
+  }
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Chapter code (from book.cls).
+%% Right aligned and rulers before and after text.
+%%
+\@ifclassloaded{book}%
+  {
+    \renewcommand{\@makechapterhead}[1]
+      {
+        \vspace*{50\p@}%
+        {%
+          \parindent \z@ \raggedleft \normalfont
+          \hrule
+          \vskip 20\p@
+          \ifnum \c@secnumdepth >\m@ne
+            \if@mainmatter
+              \huge\bfseries \@chapapp\space \thechapter
+              \par\nobreak
+              \vskip 15\p@
+            \fi
+          \fi
+          \interlinepenalty\@M
+          \Huge \bfseries #1\par\nobreak
+          \vskip 20\p@
+          \hrule
+          \vskip 40\p@
+        }
+      }
+  }{}
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% For code (from latex.ltx)
+%% Processes coma separated list of tokens. Returns 1 token at a time.
+%% \foreach\token:=\list\do{actions}
+%%
+\def\@foreachnoop#1\@@#2#3{}
+\long\def\foreach#1:=#2\do#3{%
+  \expandafter\def\expandafter\@foreachtmp\expandafter{#2}%
+  \ifx\@foreachtmp\@empty \else
+    \expandafter\@foreachloop#2,\@nil,\@nil\@@#1{#3}\fi}
+\long\def\@foreachloop#1,#2,#3\@@#4#5{\def#4{#1}\ifx #4\@nnil \else
+       #5\def#4{#2}\ifx #4\@nnil \else#5\@iforeachloop #3\@@#4{#5}\fi\fi}
+\long\def\@iforeachloop#1,#2\@@#3#4{\def#3{#1}\ifx #3\@nnil
+       \expandafter\@foreachnoop \else
+      #4\relax\expandafter\@iforeachloop\fi#2\@@#3{#4}}
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Internal counters (when we use the tabular env. the
+%% \advance\counter (TeX) doesn't seem to work). Maybe because it's
+%% not global.
+%%
+\newcounter{man@cnta}
+\newcounter{man@cntb}
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Internal error displayer
+%%
+\providecommand{\man@error}[2]
+{
+  \GenericError{%
+    \space\space\space\@spaces\@spaces\@spaces
+  }{%
+    Manual Error: #1%
+  }{%
+    See the Manual documentation for explanation.%
+  }{#2}%
+}
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%% Verbatim environments (uses fancyvrb)
+%%
+\DefineVerbatimEnvironment{manverbatim}{Verbatim}%
+  {
+    commandchars=\@\$?,%
+    xleftmargin=1.5em
+  }
+\DefineVerbatimEnvironment{mansynopsis}{Verbatim}%
+  {
+    commandchars=\@\$?
+  }
+\DefineVerbatimEnvironment{mansynopsisnc}{Verbatim}%
+  {
+  }
+\DefineVerbatimEnvironment{manlisting}{Verbatim}%
+  {
+    commandchars=\@\$?,%
+    numbers=left,%
+    frame=lines,%
+    framesep=3ex,%
+    labelposition=topline,%
+    xleftmargin=2.5em
+  }
+%%
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+%%-----------------------------------------------------------------------------
+%%
+%%=============================================================================
+\endinput
+%%-----------------------------------------------------------------------------

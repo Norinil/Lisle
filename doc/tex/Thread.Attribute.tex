@@ -1,0 +1,141 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Thread::Attribute}
+
+The \code{Thread::Attribute} class is a thread behaviour
+descriptor. Objects of this class are used as second (optional)
+argument to the \code{Thread::create} function. They have no other use
+in \lisle{}. The class is a container which stores:
+
+\begin{itemize}
+  \item The thread's startup join state. A thread is either in
+    \code{Joinable} or \code{Detached} state.\\
+    In the joinable state, another thread can synchronize on the
+    thread termination and recover its termination code using
+    \code{Thread::Id::join()} but some of the thread resources are
+    kept allocated after the thread terminates, and reclaimed only
+    when another thread performs a \code{Thread::Id::join()} on that
+    thread.\\
+    In the detached state, the thread resources are immediately freed
+    when it terminates, and \code{Thread::Id::join()} cannot be used
+    to synchronize on the thread termination.\\
+    A thread created in the joinable state can later be put in the
+    detached state using \code{Thread::Id::detach()}.
+  \item The thread's scheduling
+    policy. Table~\manref{tab:Thread-Scheduling} shows the available
+    scheduling policies.
+    \begin{table}[htbp]
+      \centering
+      \begin{tabular}[h]{|l|p{0.6\linewidth}|}
+        \hline
+        \textbf{Schedule} & \textbf{Description} \\
+        \hline
+        \code{Inherit} &
+        The thread's scheduling policy is inherited from the calling
+        thread. \\
+        \code{Parent} &
+        Alias for \code{Inherit}. \\
+        \hline
+        \code{Regular} &
+        Regular non-realtime scheduling. This is the scheduling policy
+        available for regular users. \\
+        \code{Other} &
+        Alias for \code{Regular}. \\
+        \hline
+        \code{Circular} &
+        Realtime round-robin scheduling. This scheduling policy
+        requires superuser privileges. \\
+        \hline
+        \code{Fifo} &
+        Realtime first in first out scheduling. This scheduling policy
+        requires superuser privileges. \\
+        \hline
+      \end{tabular}
+      \caption{Thread scheduling policies}
+      \label{tab:Thread-Scheduling}
+    \end{table}
+\end{itemize}
+
+\let\savedmanlayout=\manlayout
+\renewcommand{\manlayout}{vcompact}
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Thread.Attribute>
+
+class Thread::Attribute
+{
+public:
+  enum State { Joinable, Detached };
+  enum Schedule { Inherit, Regular, Circular, Fifo, 
+                  Parent=Inherit, Other=Regular };
+  enum Priority { Lazy, Lowest, Low, Normal, 
+                  High, Highest, Critical };
+  ~Attribute ();
+  Attribute (State state = Joinable,
+             Schedule schedule = Regular,
+             Priority priority = Normal);
+  Attribute (const Attribute& attribute);
+  Attribute& operator = (const Attribute& attribute);
+  State state () const;
+  Schedule schedule () const;
+  Priority priority () const;
+  void state (State val);
+  void schedule (Schedule val);
+  void priority (Priority val);
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} thread attribute.
+
+  \constructor{%
+    Attribute::State \farg{state} = Joinable,
+    Attribute::Schedule \farg{schedule} = Regular,
+    Attribute::Priority \farg{priority} = Normal}
+  Constructs \farg{this} thread attribute. Optional arguments
+  \farg{state}, \farg{schedule}, and \farg{priority} can be given to
+  construct \farg{this} thread attribute with the given \farg{state},
+  \farg{schedule}, and \farg{priority} initial values.
+
+  \constructor{const Thread::Attribute\& \farg{attribute}}
+  Constructs \farg{this} thread attribute from the given
+  \farg{attribute}. All data stored in \farg{attribute} are cloned
+  into \farg{this} thread attribute.
+
+  \operator{Thread::Attribute\&}{=}{=}{const Thread::Attribute\&
+  \farg{attribute}}
+  Assigns the rvalue \farg{attribute} to \farg{this} thread
+  attribute. All data stored in the rvalue \farg{attribute} are cloned
+  into \farg{this} thread attribute. A reference to \farg{this}
+  thread attribute is returned for assignment operation chaining.
+
+  \function[const]{Attribute::State}{state}{}
+  Returns the thread join state stored in \farg{this} thread
+  attribute.
+
+  \function[const]{Attribute::Schedule}{schedule}{}
+  Returns the thread scheduling policy stored in \farg{this} thread
+  attribute.
+
+  \function[const]{Attribute::Priority}{priority}{}
+  Returns the thread priority stored in \farg{this} thread attribute.
+
+  \function{void}{state}{Attribute::State \farg{val}}
+  Sets the thread join state field of \farg{this} thread attribute to
+  the given \farg{val}ue.
+
+  \function{void}{schedule}{Attribute::Schedule \farg{val}}
+  Sets the thread scheduling policy of \farg{this} thread attribute to
+  the given \farg{val}ue.
+
+  \function{void}{priority}{Attribute::Priority \farg{val}}
+  Sets the thread priority of \farg{this} thread attribute to the
+  given \farg{val}ue.
+\end{mandescription}
+
+\renewcommand{\manlayout}{\savedmanlayout}
+
+\end{classpage}

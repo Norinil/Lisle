@@ -1,0 +1,125 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Thread}
+
+The \class{Thread} class is a thread startup descriptor. 
+Objects of this class are used as first argument to the \code{create} function. 
+The class is a container which stores:
+
+\begin{itemize}
+  \item The address of the thread's ``main'' function. 
+    The function that will run concurrently with the calling thread.
+  \item The handle to arguments to pass to the thread on startup, if any.
+  \item The thread's startup mode. 
+    This mode describes whether the thread starts in suspended mode or in running mode. 
+    The default startup mode is the running mode. 
+    Table~\ref{tab:Thread::Mode} describes the thread startup modes and their effect on a freshly created thread.
+  \item The thread's starting state.
+    This state describes whether the thread starts in joinable state or in detached state.
+    The default starting state is the joinable state.
+    Table~\ref{tab:Thread::State} describes the thread startup states.
+\end{itemize}
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{|l|p{0.7\linewidth}|}
+    \hline
+    \textbf{Mode} & \textbf{Description} \\
+    \hline
+    \code{Running} &
+    The thread calls its main function as soon as it is created. This
+    is the default thread start mode.
+    \\
+    \hline
+    \code{Suspended} &
+    The thread suspends itself as soon as it is created, before
+    calling its main function. A call to \code{Thrid::resume()}
+    is needed to switch the thread back into running state.
+    \\
+    \hline
+  \end{tabular}
+  \caption{Thread modes.}
+  \label{tab:Thread::Mode}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{|l|p{0.7\linewidth}|}
+    \hline
+    \textbf{State} & \textbf{Description} \\
+    \hline
+    \code{Joinable} &
+    The thread starts in joinable state.
+    This is the default thread start state.
+    \\
+    \hline
+    \code{Detached} &
+    The thread starts in detached state.
+    \\
+    \hline
+  \end{tabular}
+  \caption{Thread states.}
+  \label{tab:Thread::State}
+\end{table}
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Thread>
+
+class Thread
+{
+public:
+  enum State { Joinable, Detached };
+  enum Mode { Running, Suspended };
+  typedef void(* Callee)();
+  typedef Anondle(* Caller)(void(*)(),Anondle&);
+  ~Thread ();
+  Thread ();
+  Thread (const Thread& that);
+  Thread& operator = (const Thread& that);
+  Thread (void(* main)(),
+          Mode mode = Running, State state = joinable);
+  template <typename TAT>
+  Thread (void(* main)(Handle<TAT>), const Handle<TAT>& args,
+          Mode mode = Running, State state = Joinable);
+  template <typename TRT>
+  Thread (Handle<TRT>(* main)(),
+          Mode mode = Running, State state = Joinable);
+  template <typename TRT, typename TAT>
+  Thread (Handle<TRT>(* main)(Handle<TAT>), const Handle<TAT>& args,
+          Mode mode = Running, State state = Joinable);
+  Caller call () const;  
+  Callee main () const;
+  Anondle& args () const;
+  State state () const;
+  Mode mode () const;
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} thread startup descriptor. Releases all used
+  resources.
+
+  \constructor{}
+  Constructs \farg{this} thread startup descriptor, setting the
+  ``main'' function address to \code{NULL}, and the startup mode to
+  \code{Running}.
+
+  \constructor{const Thread\& \farg{that}}
+  Constructs \farg{this} thread startup descriptor from \farg{that}
+  thread descriptor. All values stored in that
+  thread descriptor are cloned into \farg{this} thread
+  startup descriptor.
+
+  \operator{Thread\&}{=}{=}{const Thread\& \farg{that}}
+  Assigns \farg{this} thread startup descriptor from \farg{that} thread
+  descriptor. All values stored in \farg{that}
+  thread descriptor are cloned into \farg{this} thread
+  startup descriptor. A reference to \farg{this} thread startup
+  descriptor is returned for assignment chaining.
+
+\end{mandescription}
+
+\end{classpage}

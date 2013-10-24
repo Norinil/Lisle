@@ -1,0 +1,65 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Barrier}
+
+Barriers are multiple threads synchronisation devices. A barrier
+blocks waiting threads until the given number of clients have reached
+it. Barrier objects are reusable. This means that the same barrier
+object can be waited for sequentially multiple times by a given
+thread.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Barrier>
+
+class Barrier
+{
+public:
+  ~Barrier ()
+    throw (permission);
+  Barrier (size_t clients)
+    throw (resource);
+  void wait ()
+    throw ();
+private:
+  // @textnit$Disable cloning?
+  Barrier (const Barrier& barrier);
+  Barrier& operator = (const Barrier& barrier);
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} barrier, releasing all resources it might
+  hold. No threads must be waiting on \farg{this} barrier on
+  entrance.
+  \begin{exception}
+    \item[permission] is thrown if there are
+      waiting threads for \farg{this} barrier.
+  \end{exception}
+
+  \constructor{size\_t \farg{clients}}
+  Constructs \farg{this} barrier with the given number of
+  \farg{clients}. The created barrier will block waiting threads
+  until the given number of \farg{clients} is reached.
+  \begin{exception}
+    \item[resource] is thrown if there are not
+      enough system resources to create \farg{this} new barrier.
+  \end{exception}
+
+  \function{void}{wait}{}
+  Suspends the calling thread until the expected number of \farg{client} threads are waiting on \farg{this} barrier. 
+  Once the expected number of \farg{client}s threads have reached \farg{this} barrier all waiting threads are restarted.
+\end{mandescription}
+
+\mansection{Cancellation}
+None of the barrier functions is a cancellation point.
+
+\mansection{Async-Signal Safety}
+The \code{Barrier} member functions are not async-signal safe, and
+should not be called from a signal handler. Calling
+\code{Barrier::wait()} from a signal handler may deadlock the
+calling thread.
+
+\end{classpage}

@@ -1,0 +1,17 @@
+%% -*- LaTeX -*-
+
+\usepackage{xspace}
+\newcommand\lyric{\textsc{Lyric}\xspace}
+\newcommand\lisle{\textsc{Lisle}\xspace}
+
+\newcommand\nsThreadNote[2]{%
+The \code{Thread::#1} #2 is actually a #2 \code{#1}, part of the
+\code{Thread} name space. When using the \code{Thread} name space
+\code{Thread::} can be omitted as far as there is no naming ambiguity.
+}
+
+\newcommand\mfdExceptionWho{%
+  \function[const]{void*}{who}{}
+    Returns the address of the object which threw \farg{this}
+    exception. Usually the this pointer of the object.
+}

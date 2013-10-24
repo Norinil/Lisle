@@ -1,0 +1,48 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Acquirer}
+
+An acquirer is a lock monitor. A lock monitor has a
+constructor taking a mutex as argument. The mutex is locked on monitor
+construction and unlocked on monitor destruction. Thus the mutex is
+locked while the monitor is in scope and unlocked when the monitor
+gets out of scope.
+
+Lock monitors are used to avoid complicated mutex lock and unlock call
+sequences in functions. Construct a lock monitor at the begin of a
+function and the mutex will be locked until the function exits either
+normally, with a \code{return}, or because of an exception.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Acquirer>
+
+class Acquirer
+{
+public:
+  ~Acquirer ()
+    throw ();
+  Acquirer (Mutex& mutex)
+    throw (deadlock);
+private:
+  // @textnit$Disable cloning?
+  Acquirer (const Acquirer&);
+  Acquirer& operator = (const Acquirer&);
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} lock monitor. Releases the lock on the mutex
+  given in the constructor.
+
+  \constructor{Mutex\& \farg{mutex}}
+  Constructs \farg{this} lock monitor. Acquires the lock on the given
+  \farg{mutex}.
+  \begin{exception}
+    \item[deadlock] is thrown if the calling thread already owns the \farg{mutex}.
+  \end{exception}
+\end{mandescription}
+
+\end{classpage}

@@ -1,0 +1,96 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Duration}
+
+A class to store time spans.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Duration>
+
+class Duration
+{
+public:
+  ~Duration ();
+  Duration ();
+  Duration (const Duration& that);
+  Duration& operator = (const Duration& that);
+  Duration (double seconds);
+  int64_t sec () const;
+  uint32_t nsec () const;
+  Duration operator - () const;
+  bool operator == (const Duration& that) const;
+  bool operator != (const Duration& that) const;
+  bool operator < (const Duration& that) const;
+  bool operator > (const Duration& that) const;
+  bool operator <= (const Duration& that) const;
+  bool operator >= (const Duration& that) const;
+  Duration& operator += (const Duration& that);
+  Duration& operator -= (const Duration& that);
+};
+Duration operator + (const Duration& lho, const Duration& rho);
+Duration operator - (const Duration& lho, const Duration& rho);
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} duration.
+  
+  \constructor{}
+  Constructs \farg{this} duration as a zero time span.
+  
+  \constructor{const Duration\& \farg{that}}
+  Constructs \farg{this} duration from \farg{that} duration.
+  The time span stored in \farg{that} is copied into \farg{this}.
+  
+  \operator{Duration\&}{=}{=}{const Duration\& \farg{that}}
+  Assigns \farg{that} duration to \farg{this} duration.
+  The time span stored in \farg{that} is copied into \farg{this}.
+  A reference to \farg{this} duration is returned for assignment chaining.
+  
+  \constructor{double \farg{seconds}}
+  Constructs \farg{this} duration for a time span of the given \farg{seconds}.
+  A \farg{seconds} value of \code{3.25} means 3 seconds and 25 hundred's of a second.
+  
+  \function[const]{int64\_t}{sec}{}
+  Returns the number of seconds of \farg{this} time span.
+  
+  \function[const]{uint32\_t}{nsec}{}
+  Returns the number of nano-seconds of \farg{this} time span, e.g. the decimal part, rounded to the nano-second.
+  
+  \operator[const]{Duration}{-}{-}{}
+  Returns the negative of \farg{this} duration.
+  
+  \operator[const]{bool}{==}{==}{const Duration\& \farg{that}}
+  Returns \code{true} if \farg{this} duration stores the same time span as \farg{that} duration, \code{false} if not.
+
+  \operator[const]{bool}{!=}{"!=}{const Duration\& \farg{that}}
+  Returns \code{true} if \farg{this} duration stores a different time span as \farg{that} duration, \code{false} if not.
+  
+  \operator[const]{bool}{<}{<}{const Duration\& \farg{that}}
+  Returns \code{true} if \farg{this} duration stores a time span smaller than \farg{that} duration, \code{false} if not.
+
+  \operator[const]{bool}{>}{>}{const Duration\& \farg{that}}
+  Returns \code{true} if \farg{this} duration stores a time span greater than \farg{that} duration, \code{false} if not.
+
+  \operator[const]{bool}{<=}{<=}{const Duration\& \farg{that}}
+  Returns \code{true} if \farg{this} duration stores a time span smaller or equal than \farg{that} duration, \code{false} if not.
+
+  \operator[const]{bool}{>=}{>=}{const Duration\& \farg{that}}
+  Returns \code{true} if \farg{this} duration stores a time span greater or equal than \farg{that} duration, \code{false} if not.
+  
+  \operator{Duration\&}{+=}{+=}{const Duration\& \farg{that}}
+  Adds \farg{that} time span to \farg{this} duration and returns a reference to \farg{this} for operation chaining.
+  
+  \operator{Duration\&}{-=}{-=}{const Duration\& \farg{that}}
+  Substracts \farg{that} time span from \farg{this} duration and returns a reference to \farg{this} for operation chaining.
+  
+  \operator{Duration}{+}{+}{const Duration\& \farg{lho}, const Duration\& \farg{rho}}
+  Returns the time span sum of \farg{lho} and \farg{rho} durations.
+
+  \operator{Duration}{-}{-}{const Duration\& \farg{lho}, const Duration\& \farg{rho}}
+  Returns the time span difference of \farg{lho} and \farg{rho} durations.
+\end{mandescription}
+
+\end{classpage}

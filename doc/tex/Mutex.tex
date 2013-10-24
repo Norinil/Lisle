@@ -1,0 +1,112 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Mutex}
+  
+A mutex is a {\em mut}ual {\em ex}clusion device, and is useful for
+protecting shared data structures from concurrent modifications, and
+implementing critical sections and monitors.
+
+A mutex has two possible states: unlocked -- not owned by any thread
+--, and locked -- owned by one thread. A mutex can never be owned by
+two different threads simultaneously.  A thread attempting to lock a
+mutex that is already locked by another thread is suspended until the
+owning thread unlocks the mutex first.
+
+The mutex has error checking enabled. If a thread attempts to relock
+a mutex that it has already locked, a deadlock exception is thrown.
+If a thread attempts to unlock a mutex that it has not locked or a mutex which is unlocked, a permission exception is thrown.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Mutex>
+
+class Mutex
+{
+public:
+  ~Mutex ()
+    throw (permission);
+  Mutex ()
+    throw (resource);
+  bool trylock ()
+    throw ();
+  void lock ()
+    throw (deadlock);
+  void unlock ()
+    throw (permission);
+  bool tryacquire ()
+    throw ();
+  void acquire ()
+    throw (deadlock);
+  void release ()
+    throw (permission);
+private:
+  // @textnit$Disable cloning?
+  Mutex (const Mutex&);
+  Mutex& operator = (const Mutex&);
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} mutex, freeing all resources it might
+  hold. On entrance \farg{this} mutex must be unlocked.
+  \begin{exception}
+    \item[permission] is thrown if \farg{this} mutex was
+      not unlocked before being destroyed.
+  \end{exception}
+
+  \constructor{}
+  Constructs \farg{this} mutex.
+  \begin{exception}
+    \item[resource] is thrown if there are not
+      enough system resources to create a new mutex.
+  \end{exception}
+
+  \function{void}{lock,acquire}{}
+  Locks \farg{this} mutex.\\
+  If \farg{this} mutex is currently unlocked, it becomes locked and
+  owned by the calling thread, and \code{lock} returns
+  immediately.\\
+  If \farg{this} mutex is already locked by another thread,
+  \code{lock} suspends the calling thread until \farg{this} mutex is
+  unlocked.\\
+  If \farg{this} mutex is already locked by the calling thread, the
+  function throws a \code{deadlock} exception and returns immediately.
+  \begin{exception}
+    \item[deadlock] is thrown if a calling thread tries to lock
+    \farg{this} mutex when it is already owned by the thread.    
+  \end{exception}
+
+  \function{bool}{trylock,tryacquire}{}
+  These functions behave identically to \code{lock()}, except
+  that they don't block the calling thread if \farg{this} mutex is
+  already locked by a thread (including the calling thread). If the
+  calling thread could lock \farg{this} mutex \code{true} is returned,
+  else these functions return \code{false}.
+
+  \function{void}{unlock,release}{}
+  Unlocks \farg{this} mutex. On entrance to this function \farg{this}
+  mutex is assumed to be locked and owned by the calling
+  thread.\\
+  If \farg{this} mutex is not owned by the calling thread an
+  \code{permission} exception is thrown.
+  \begin{exception}
+    \item[permission] is thrown if the calling thread does not own
+    \farg{this} mutex.
+  \end{exception}
+\end{mandescription}
+
+\mansection{Cancellation}
+  None of the mutex functions is a cancellation point, not even
+  \code{lock()}, in spite of the fact that it can suspend a
+  thread for arbitrary durations. This way, the status of mutexes at
+  cancellation points is predictable.
+
+\mansection{Async-Signal Safety}
+  The mutex functions are not async-signal safe. What this means is
+  that they should not be called from a signal handler. In particular,
+  calling \code{lock()} or \code{unlock()} from a signal
+  handler may deadlock the calling thread.
+
+\end{classpage}

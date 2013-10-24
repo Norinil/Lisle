@@ -1,0 +1,10 @@
+*~
+*.aux
+*.idx
+*.log
+*.maf
+*.mtc*
+*.out
+*.pdf
+*.toc
+auto/

@@ -1,0 +1,306 @@
+%% -*- LaTeX -*-
+
+\input{preamble}
+
+\begin{document}
+\dominitoc
+
+%==============================================================================
+\begin{mantitlepage}
+  \title{%
+    \vspace*{13ex}
+    {\Huge \bf \lisle}\\
+    \vspace*{7ex}
+    {\huge C++ Thread Library}\\
+    \vspace*{5ex}
+    {\Huge Documentation}
+  }
+  \author{\Large The \lisle development team}
+  \date{\Large \today}
+\end{mantitlepage}
+
+\newpage
+\thispagestyle{empty}
+\newsavebox{\mancopybox}
+\newlength{\mancopyboxheight}
+\newlength{\mancopyboxvspace}
+\sbox{\mancopybox}{\parbox{\linewidth}{%
+\hrule
+\vspace*{3ex}
+Copyright \copyright\ 2002--2013, The \lisle development team.
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.  A
+copy of the license is included in the appendix entitled ``Terms and
+Conditions'', section ``Document Usage'' (Appendix~\manref{app:FDL}).
+\vspace*{3ex}
+\hrule
+}}
+\settototalheight{\mancopyboxheight}{\usebox{\mancopybox}}
+\setlength{\mancopyboxvspace}{\textheight}
+\addtolength{\mancopyboxvspace}{-\mancopyboxheight}
+\vspace*{\mancopyboxvspace}
+\noindent
+\usebox{\mancopybox}
+
+\input{postamble}
+%------------------------------------------------------------------------------
+
+%==============================================================================
+\chapter{Introduction}
+\label{cha:Introduction}
+
+\lisle is a cross platform object-oriented C++ thread library. The
+POSIX thread model and definitions were chosen as design template for
+\lisle, but with C++ extensions and features use in mind. \lisle
+is more than a C++ wraper around native thread APIs. Currently
+\lisle has been ported to POSIX and Win32 native threads.
+
+This library features cancellable and suspendable threads, and various
+synchronization devices. This includes semaphores, mutexes, condition
+variables, barriers, and other more complex components.
+Chapter~\ref{cha:Synchronization-Devices} gives the complete list and
+APIs for \lisle synchronization devices.
+
+Existing thread APIs do not provide a consistent and portable means
+for exercising control over concurrent threads of execution. For
+instance, each platform has its own specialized methods for error
+handling, thread cancellation and termination. \lisle includes an
+elegant method of safely terminating threads without the complications
+of using cancellation handlers or other similar
+constructs. Chapter~\ref{cha:Thread-Management} decribes the
+primitives and APIs for \lisle thread management.
+
+\lisle can detect various concurrency and synchronization faults in
+programs and signals them through C++ exceptions. All synchronization
+devices are protected against destruction while at least one thread
+still owns it. The library can also detect and signal deadlock
+situations. \lisle assists developers as much as possible in order
+to provide the best as possible final concurrent
+software. Chapter~\ref{cha:Exceptions} lists all exceptions that can
+be thrown by \lisle.
+%------------------------------------------------------------------------------
+
+%==============================================================================
+\chapter{Design Choices}
+\label{cha:Design-Choices}
+
+\manminitoc
+\noindent
+As in every real world engineering project, \lisle{} was designed and
+implemented with compromises to the original ideal software that we
+had in mind. In this chapter we explain and justify the design and
+implementation choices we made for \lisle{}. This chapter is not a
+justification for a bad design, but to explain what choices were made
+according to the limitations found in current state of the art
+computer technology, languages, and third party libraries, on top of
+which \lisle{} is built.
+
+\section{Cancellation}
+\label{sec:Design-Cancellation}
+
+\lisle provides synchronous thread cancellation. You may wonder why
+despite POSIX thread provides asynchronous thread cancellation
+\lisle doesn't. This is because the choice was made to impose no
+cancellation handler management to the developpers, but to use plain
+C++ destruction mechanisms to clean up when a thread honors a
+cancellation request.
+
+Indeed, C++ comes with object destructors which are automatically
+called when an object exits a scope block. It is a very reliable
+mechanism one can build on. Every time an object gets out of focus,
+either by regular scope exit or when an exception is thrown, the
+object's destructor is called. It is in the destructor that you
+implement object cleanup and resources release.
+
+When a \lisle thread honors a cancellation request it uses the
+regular C++ stack unwinding and automatic destructor calls. In fact,
+in \lisle thread cancellation is implemented by means of a cancel
+exception throwing. The advantage is that the aformentioned C++ stack
+unwinding mechanism is invoked to cleanup, the drawback being some
+restrictions on exception specifications and catching.
+
+Functions where a cancellation request can be honored {\bf can not}
+have an explicit C++ exception specification. Indeed, the \lisle's
+internal exceptions used to cancel and/or exit a thread would never
+match your exception specifications since you don't know the names of
+\lisle's internal exceptions. Specifing C++ exceptions in the
+cancellable path of a thread will lead to an unexpected exception
+being thrown, what is not what you expect.
+
+Furthermore in functions where a cancellation request can be honored
+no generic catching (with \code{catch(...)}) can be used. Using a
+generic exception catching would catch the \lisle thread management
+exception as well as all other exceptions, without filtering. Thus you
+would break \lisle's thread management chain and never be informed
+what happened to your thread. Plus the thread's internal state
+descriptor would no longer be coherent with the thread's actual state.
+
+Using the C++ exception mechanism to implement thread cancellation
+forbids the handling of asynchronous cancellation requests. Indeed, it
+is not possible to throw a C++ exception in a signal handler (Unix) or
+very unsafe in an event handler (Win32). Moreover, imagine what would
+happen if the thread to cancel is in a function (say \code{malloc}).
+There is no way to predict what would happen when a program jumps out
+of a C function without leting this function terminate properly.
+
+Let's take \code{malloc} as an example. This function reserves some
+memory and returns a pointer to the memory block. It will first place
+a system call to get a memory block, then do some error checking, and
+finally assign and return a pointer to the memory block. Imagine the
+thread calling malloc is cancelled between the memory reservation
+system call and the error checking. The pointer to return would never
+be assigned, and we would never know if the memory reservation
+succeeded or failed. The process would continue to run, but its state
+would no longer be 100\% defined, which is not to recommend for a
+state machine (as every piece of software is).
+%------------------------------------------------------------------------------
+
+%==============================================================================
+\chapter{Synchronization Devices}
+\label{cha:Synchronization-Devices}
+
+\manminitoc
+\noindent
+The synchronization devices is a set of C++ classes used to synchronize
+threads. Thread synchronization is used to avoid data race conditions,
+to provide flow control mechanisms, and much more.
+
+\input{Mutex}
+\input{Retex}
+\input{Acquirer}
+\input{Releaser}
+\input{Semaphore}
+\input{Condition}
+\input{Event}
+\input{Shorex}
+\input{Barrier}
+%------------------------------------------------------------------------------
+
+%==============================================================================
+\chapter{Thread Mangement}
+\label{cha:Thread-Management}
+
+\manminitoc
+\noindent
+The thread management is a set of C++ classes and functions to handle
+threads. Thread management provides tools to start, stop, identify,
+etc, threads.
+
+\input{create}
+\input{self}
+\input{Thread}
+\input{Thrid}
+\input{Once}
+\input{Local}
+%------------------------------------------------------------------------------
+
+%==============================================================================
+\chapter{Miscellaneous}
+\label{cha:Miscellaneous}
+
+\manminitoc
+\noindent
+Helper classes.
+
+\input{Handle}
+\input{Anondle}
+\input{Countic}
+\input{Duration}
+%------------------------------------------------------------------------------
+
+%==============================================================================
+\chapter{Exceptions}
+\label{cha:Exceptions}
+
+\manminitoc
+\noindent
+
+\section{Resource}
+\label{sec:Exceptions.Resource}
+A \class{resource} exception is thrown whenever there are not enough system resources left to create an instance of a thread related item.
+Expect a \class{resource} exception to be thrown by a constructor.
+
+\section{Permission}
+\label{sec:Exceptions.Permission}
+A \class{permission} exception is thrown whenever the program doesn't have permission to perform a given operation.
+Expect a \class{permission} exception to be thrown by a destructor, or by a setting on a thread the operating system wouldn't allow.
+
+\section{Deadlock}
+\label{sec:Exceptions.Deadlock}
+Expect a \class{deadlock} exception when \lisle detects an operation that would lock a thread in a state from which it can't exit.
+For example self joining a thread would deadlock.
+An attempt to relock a mutex will also throw a \class{deadlock} exception.
+
+\section{Overflow}
+\label{sec:Exceptions.Overflow}
+Expect an \class{overflow} exception when a post operation would overflow a semaphore count.
+
+\section{Timeout}
+\label{sec:Exceptions.Timeout}
+A \class{timeout} exception is thrown whenever a timed wait terminates on the duration condition.
+Expect a \class{timeout} exception on all timed waits.
+
+\section{Virthread}
+\label{sec:Exceptions.Virthread}
+A \class{virthread} exception is thrown whenever a null function thread creation is attempted.
+
+\section{Internal}
+\label{sec:Exceptions.Internal}
+\lisle uses exceptions for thread termination and cancellation.
+Using exceptions ensures that the stack is unwound correctly and that all used resources are released properly.
+Internal exceptions all derive from the \code{threption} base class.
+It is mandatory to let \code{threption} exceptions flow freely without being caught.
+\\
+Thus a
+\\
+\indent \code{catch~(...)}
+\\
+clause must be preceded by a
+\\
+\indent \code{catch~(threption\&)~\{throw;\}}
+\\
+clause for thread cancellation and termination to work.
+The correct catch all is thus:
+\\
+\indent \code{catch~(threption\&)~\{throw;\}}
+\\
+\indent \code{catch~(...)}
+%------------------------------------------------------------------------------
+
+%==============================================================================
+\appendix
+
+\newpage
+\chapter{Terms and Conditions}
+\label{app:Terms}
+
+\section{Library Usage}
+\label{app:LGPL}
+The \lisle thread C++ library is distributed under the terms and
+conditions of the GNU library general public license. The following
+text describes the terms and conditions for copying, distribution and
+modification of \lisle. In the following text ``library'' refers to
+the ``\lisle C++ thread library''.
+\vspace*{5ex}
+\input{LGPL}
+
+\newpage
+\section{Document Usage}
+\label{app:FDL}
+The \lisle thread C++ library documentation is distributed under the
+terms and conditions of the GNU free documentation license. The
+following text describes the terms and conditions for copying,
+distribution and modification of the \lisle documentation. In the
+following text ``document'' refers to the ``\lisle C++ thread library
+documentation'' (this document).
+\input{FDL}
+%------------------------------------------------------------------------------
+
+%==============================================================================
+%------------------------------------------------------------------------------
+
+\input{index}
+
+\end{document}

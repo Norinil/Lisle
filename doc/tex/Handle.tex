@@ -1,0 +1,67 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Handle}
+
+A \class{Handle} is a thread safe smart pointer.
+Thread safeness is achieved by means of an atomic counter.
+As with other smart pointers, a handle releases data once the last handle referencing that data is destroyed.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Handle>
+
+template <typename T>
+class Handle
+{
+public:
+  ~Handle ();
+  Handle (T* data = 0);
+  Handle (const Handle& that);
+  Handle& operator = (const Handle& that)
+  operator T* ();
+  operator T* () const;
+  T* operator -> ();
+  T* operator -> ();
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} handle,
+  atomically decreasing the shared usage counter,
+  and eventually releasing used resources when the usage counter reaches zero.
+
+  \constructor{T* data}
+  Constructs \farg{this} handle referencing the given \farg{data}.
+  If no \farg{data} is specified a handle referencing \code{NULL} is created.
+  
+  \constructor{const Handle\& that}
+  Constructs \farg{this} handle from \farg{that} handle.
+  Both handles reference the same data,
+  and the shared usage counter is increased atomically.
+
+  \operator{Handle\&}{=}{=}{const Handle\& that}
+  Assigns \farg{that} handle to \farg{this} handle.
+  If both handles are the same then the operation has no effect.
+  Otherwise \farg{this} handle is first ``cleaned'' (dereferenced, with eventual data release),
+  then \farg{that} handle is cloned into \farg{this} handle,
+  and the shared usage counter is increased atomically.
+
+  \operator{}{T*}{T*}{}
+  Returns the pointer to the data stored in \farg{this} handle.
+  \operator[const]{}{T*}{const T*}{}
+  Returns the pointer to the data stored in \farg{this} handle.
+
+  \operator{T*}{->}{-$>$}{}
+  Returns the pointer to the data stored in \farg{this} handle, giving
+  access to data and function members if \code{T} is a structure or a
+  class.
+  \operator[const]{T*}{->}{-$>$}{}
+  Returns the pointer to the data stored in \farg{this} handle, giving
+  access to data and function members if \code{T} is a structure or a
+  class.
+
+\end{mandescription}
+
+\end{classpage}

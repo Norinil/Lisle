@@ -1,0 +1,58 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Once}
+
+The \class{Once} is a base class for {\em once controls}.  The
+purpose of a once control is to ensure that a piece of code is
+executed at most once, whatever number of calls to its \code{run}
+function, in whichever thread. Once controls can be used for thread
+safe initialization for example.
+
+The first time the \code{run} function of a once control is called,
+the dervied \code{main} function is called without arguments and the
+once control records that the call has been performed. Each subsequent
+call to the \code{run} function of the same once control does nothing.
+
+A once control must be a \code{Once} derived class where the
+pure virtual \code{main} function is overloaded. The \code{main}
+function is the place where the actions to perform once are listed.
+The \code{run} function only checks that \code{main} will be run
+exactly once, thread safely. The \code{run} function should not be
+overloaded, or only with care to call the base class' \code{run}.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Once>
+
+class Once
+{
+public:
+  virtual ~Once ();
+  Once ();
+  void run ();
+  virtual void main () = 0;
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} once control. Releases all resources used by
+  \farg{this} control.
+
+  \constructor{}
+  Constructs \farg{this} once control.
+
+  \function{void}{run}{}
+  Runs \farg{this} once control. Checks thread safely that it is the
+  first call and calls the overloaded \code{main} function. If
+  \farg{this} once control's \code{run} function has already been
+  called once, the function returns immediately.
+
+  \function{void}{main}{}
+  This is the pure virtual function that must be overloaded. It is
+  the place where the actions to be performed once for \farg{this}
+  control must the implemented.
+\end{mandescription}
+
+\end{classpage}

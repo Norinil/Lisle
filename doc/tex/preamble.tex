@@ -1,0 +1,48 @@
+%% -*- LaTeX -*-
+
+\documentclass[10pt]{book}
+\usepackage{manual}
+\usepackage{a4}
+\usepackage{enumerate}
+\usepackage{makeidx}
+\ifpdfman
+  \usepackage[pdftex]{graphicx}
+  \pdfcompresslevel=9
+  \usepackage{minitoc}
+  \usepackage[pdftex,colorlinks]{hyperref}
+\else
+  \usepackage[dvips]{graphicx}
+  \usepackage{minitoc}
+  \usepackage{hyperref}
+\fi
+
+%% Graphics stuff
+\graphicspath{{../fig/}}
+\ifhtml
+  \DeclareGraphicsExtensions{.png}
+\else\ifpdf
+  \DeclareGraphicsExtensions{.pdf}
+\else
+  \DeclareGraphicsExtensions{.eps}
+\fi\fi
+
+%% Mini TOC stuff
+\ifpdf
+\else
+  \renewcommand{\mtcfont}{\rm}
+  \renewcommand{\mtcSfont}{\rm}
+  \setlength{\mtcindent}{1.5em}
+  \nomtcrule
+\fi
+
+%% URL and Hyper References stuff
+\urlstyle{sf}
+
+%% Local commands not to be defined in manual style
+\input{commands}
+
+%% Begin to index
+\makeindex
+
+%% Allow large interword spacing
+\sloppy

@@ -1,0 +1,116 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Retex}
+  
+A retex is a {\em re}cursive mu{\em tex} device, and is useful for
+protecting shared data structures from concurrent modifications, and
+implementing critical sections and monitors.
+
+A retex has two possible states: unlocked -- not owned by any thread
+--, and locked -- owned by one thread. A retex can never be owned by
+two different threads simultaneously.  A thread attempting to lock a
+retex that is already locked by another thread is suspended until the
+owning thread unlocks the retex first.
+
+The retex maintains the concept of a lock count. When a thread
+successfully acquires a retex for the first time, the lock count is set
+to one. Every time a thread relocks this retex, the lock count is
+incremented by one. Each time the thread unlocks the retex, the lock
+count is decremented by one. When the lock count reaches zero, the
+retex becomes available for other threads to acquire. If a thread
+attempts to unlock a retex that it has not locked or a retex which is
+unlocked, a permission exception is thrown.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Retex>
+
+class Retex
+{
+public:
+  ~Retex ()
+    throw (permission);
+  Mutex ()
+    throw (resource);
+  bool trylock ()
+    throw ();
+  void lock ()
+    throw ();
+  void unlock ()
+    throw (permission);
+  bool tryacquire ()
+    throw ();
+  void acquire ()
+    throw ();
+  void release ()
+    throw (permission);
+private:
+  // @textnit$Disable cloning?
+  Retex (const Retex&);
+  Retex& operator = (const Retex&);
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} retex, freeing all resources it might
+  hold. On entrance \farg{this} retex must be unlocked.
+  \begin{exception}
+    \item[permission] is thrown if \farg{this} retex is in the locked
+      state.
+  \end{exception}
+
+  \constructor{}
+  Constructs \farg{this} retex.
+  \begin{exception}
+    \item[resource] is thrown if there are not
+      enough system resources to create a new retex.
+  \end{exception}
+
+  \function{void}{lock,acquire}{}
+  Locks \farg{this} retex.\\
+  If \farg{this} retex is currently unlocked, it becomes locked and
+  owned by the calling thread, and \code{lock} returns
+  immediately.\\
+  If \farg{this} retex is already locked by another thread,
+  \code{lock} suspends the calling thread until \farg{this} retex is
+  unlocked.\\
+  If \farg{this} retex is already locked by the calling thread, the
+  function returns immediately, recording the number of times the
+  calling thread has locked \farg{this} retex. An equal number of
+  unlock operations must be performed before \farg{this} retex returns
+  to the unlocked state.
+
+  \function{bool}{trylock,tryacquire}{}
+  These functions behave identically to \code{lock()}, except
+  that they don't block the calling thread if \farg{this} retex is
+  already locked by another thread. If the calling thread could 
+  (re)lock \farg{this} retex \code{true} is returned, else these
+  functions return \code{false}.
+
+  \function{void}{unlock,release}{}
+  Unlocks \farg{this} retex. On entrance to this function \farg{this}
+  retex is assumed to be locked and owned by the calling
+  thread.\\
+  If \farg{this} retex is  not owned by the calling thread a
+  \code{permission} exception is thrown.
+  \begin{exception}
+    \item[permission] is thrown if \farg{this}
+      retex is not owned by the calling thread.
+  \end{exception}
+\end{mandescription}
+
+\mansection{Cancellation}
+  None of the retex functions is a cancellation point, not even
+  \code{lock()}, in spite of the fact that it can suspend a
+  thread for arbitrary durations. This way, the status of retexes at
+  cancellation points is predictable.
+
+\mansection{Async-Signal Safety}
+  The retex functions are not async-signal safe. What this means is
+  that they should not be called from a signal handler. In particular,
+  calling \code{lock()} or \code{unlock()} from a signal
+  handler may deadlock the calling thread.
+
+\end{classpage}

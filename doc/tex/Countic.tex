@@ -1,0 +1,52 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Countic}
+
+A \class{Countic} is a thread safe atomic counter.
+A \class{Countic} can be atomically incremented and tested for zero or atomically decremented and tested for zero.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Countic>
+
+class Countic
+{
+public:
+  Countic (int32_t val = 0);
+  operator int32_t () const;
+  void inc ();
+  void dec ();
+  bool inctz ();
+  bool dectz ();
+private:
+  // @textnit$Disable cloning?
+  Countic (const Countic&);
+  Countic& operator = (const Countic&);
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \constructor{int32\_t \farg{val}}
+  Constructs \farg{this} countic, assigning it the optional \farg{val}ue.
+  If no \farg{val}ue is specified a countic with value zero is created.
+  
+  \operator[const]{}{int32\_t}{int32\_t}{}
+  Returns the value stored in \farg{this} countic.
+  
+  \function{void}{inc}{}
+  Increments \farg{this} countic by one.
+  
+  \function{void}{dec}{}
+  Decrements \farg{this} countic by one.
+  
+  \function{bool}{inctz}{}
+  Atomically increments and tests for zero \farg{this} countic.
+  Returns \code{true} it \farg{this} countic falls to zero.
+  
+  \function{bool}{dectz}{}
+  Atomically decrements and tests for zero \farg{this} countic.
+  Returns \code{true} it \farg{this} countic falls to zero.
+\end{mandescription}
+
+\end{classpage}

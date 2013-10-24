@@ -1,0 +1,167 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Thrid}
+
+Class \code{Thrid} is a thread identifying structure with thread manipulation
+member functions. The thread member functions act on the thread
+identified by the thread identifier, not the calling thread. On some
+systems thread identifiers are called thread handlers. In \lisle the
+terms ``thread identifier'' and ``thread handler'' have the same
+meaning and can be exchanged (however, there is no dedicated class).
+
+In order to get a thread id do one of the following:
+\begin{itemize}
+\item Instantiate a \code{Thrid} object. The default constructor
+  will initialize the resulting thread id to identify the calling
+  thread.
+\item Call the \code{create} function to create a new thread
+  of execution. The function returns the thread id of the created
+  thread. See section~\manref{sec:Creation} for details about
+  thread creation.
+\end{itemize}
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Thrid>
+
+class Thrid
+{
+public:
+  ~Thrid ();
+  Thrid ();
+  Thrid (const Thrid& that);
+  Thrid& operator = (const Thrid& that);
+  operator uint32_t () const;
+  bool operator == (const Thrid& id) const;
+  bool operator != (const Thrid& id) const;
+  void detach ()
+    throw (detach);
+  void cancel ()
+    throw ();
+  void suspend ()
+    throw (deadlock);
+  void resume ()
+    throw ();
+  Exit join ();
+    throw (join, deadlock, thrcancel);
+  template <typename TRT>
+  Exit join (Handle<TRT>& hretd);
+    throw (join, deadlock, thrcancel);
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} thread id, releasing all used resources. The
+  thread itself is not affected. Only the thread id is destroyed.
+
+  \constructor{}
+  Constructs \farg{this} thread id.\\
+  The result identifies the calling thread.
+
+  \constructor{const Thrid\& \farg{that}}
+  Constructs \farg{this} from \farg{that} thread id.  The data
+  stored in \farg{that} thread id is cloned into \farg{this} thread id.
+
+  \operator{Thrid\&}{=}{=}{const Thread::Id\& \farg{that}}
+  Assigns \farg{this} from \farg{that} thread id. The data
+  stored in \farg{that} thread id is cloned into \farg{this} thread id.
+
+  \operator[const]{}{uint32\_t}{uint32}{}
+  Casts \farg{this} thread id into a 32 bit unsigned integer. This
+  cast can be used to print out \farg{this} thread id in numeric
+  format. Most debuggers show the running threads by a number. This
+  cast returns the same number for the thread identified by
+  \farg{this} thread id.
+
+  \operator[const]{bool}{==}{==}{const Thrid\& \farg{that}}
+  Compares \farg{this} with \farg{that} rvalue thread id.
+  Returns \code{true} if both ids identify the same thread,
+  \code{false} if not.
+
+  \operator[const]{bool}{!=}{"!=}{const Thrid\& \farg{that}}
+  Compares \farg{this} with \farg{that} rvalue thread id. Returns
+  \code{true} if both ids identify different threads, \code{false}
+  if not.
+
+  \function{Exit}{join}{Handle<TRT>\& hretd}
+  Suspends the execution of the calling thread until \farg{this} thread terminates, either by thread termination or cancellation.
+  \\
+  The returned \code{Exit} stores the mean by which \farg{this} thread terminated:
+  \begin{description}
+    \item[\code{terminated}] if \farg{this} thread terminated normally or
+      if \farg{this} thread was exited with a call to \code{exit},
+    \item[\code{canceled}] if \farg{this} thread was canceled.
+    \item[\code{exceptioned}] if an uncaught exception was thrown in \farg{this} thread.
+  \end{description}
+  The optional \farg{hretd} allows the calling thread to retrieve a handle to data eventually returned by \farg{this} thread when it terminated.
+  See section~\manref{sec:Termination} for details about the \code{exit} function and how it allows a thread to return data to a joining thread.
+  \\
+  The thread with \farg{this} id must be in the joinable state: it must not have been detached calling \code{detach} or created in detached state.
+  If \farg{this} thread is not in joinable state a \class{join} exception with reason \code{join::detached} is thrown.
+  \\
+  When a joinable thread terminates, its memory resources (thread descriptor and stack) are not released until another thread performs a \code{join} on it.
+  Therefore, a joinable thread {\bf must} be joined in order to avoid memory leaks.
+  \\
+  At most one thread can join \farg{this} thread. 
+  If another thread is already waiting for termination of \farg{this} thread a \class{join} exception with reason \code{join::duplicate} is thrown.
+  \begin{exception}
+    \item[join] is thrown if joining \farg{this} thread failed.\\
+      The exception's reason of failure can be:
+      \begin{exreason}
+        \item[join::missing] if \farg{this} thread no longer exists.
+        \item[join::detached] if \farg{this} thread is in detached state.
+        \item[join::duplicate] if another thread is already joining \farg{this} thread.
+      \end{exreason}
+    \item[deadlock] is thrown if \farg{this} thread is the calling thread.
+      Self joining would deadlock \farg{this} thread.
+  \end{exception}
+
+  \function{void}{detach}{}
+  Puts \farg{this} thread in detached state.
+  This guarantees that the memory resources consumed by \farg{this} thread will be released immediately when \farg{this} thread terminates. 
+  However, this prevents other threads from synchronizing on the termination of \farg{this} thread by joining it.
+  \\
+  A thread can be created initially in the detached state, by setting the \code{Thread::State} to \code{Thread::Detached}.
+  In contrast method \code{detach} applies to threads created in the joinable state, and which need to be put in detached state later.
+  \\
+  After \code{detach} completes, subsequent attempts to join \farg{this} thread will fail with an exception.
+  \\
+  If another thread is already joining \farg{this} thread at the time \code{detach} is called, the call does nothing and leaves \farg{this} thread in the joinable state.
+  \begin{exception}
+    \item[detach] is thrown if detaching \farg{this} thread failed.
+      \\
+      The exception's reason of failure can be:
+      \begin{exreason}
+        \item[detach::missing] if \farg{this} thread no longer exists.
+        \item[detach::detached] if \farg{this} thread is already in the detached state.
+      \end{exreason}
+  \end{exception}
+
+  \function{void}{cancel}{}
+  Depending on its settings, the target thread can then either ignore the request, or defer it till it reaches a cancellation point.
+  \\
+  When a thread eventually honors a cancellation request, it performs as if \code{exit} has been called at that point. 
+  See section~\manref{sec:Cancellation} for more information on thread cancellation.
+
+  \function{void}{suspend}{}
+  Suspends execution of \farg{this} thread.
+  \\
+  A suspended thread will not be awakened by a signal. 
+  The signal stays pending until the execution of \farg{this} thread is resumed.
+  \begin{exception}
+    \item[deadlock] is thrown if suspending
+      \farg{this} thread would deadlock the process.
+  \end{exception}
+
+  \function{void}{resume}{}
+  Resumes the execution of \farg{this} suspended thread.
+\end{mandescription}
+
+\mansection{Cancellation} 
+\code{Thrid::join()} is a cancellation point. 
+If a thread is canceled while suspended in a call to \code{Thrid::join()}, the thread execution resumes immediately and the cancellation is executed without waiting for \farg{this} thread to terminate. 
+If cancellation occurs during \code{Thrid::join()}, the thread to be joined remains not joined.
+
+\end{classpage}

@@ -1,0 +1,121 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Shorex}
+
+A shorex is a {\em sh}ared {\em or} {\em ex}clusive access
+device, and is usefull for protecting shared data structures from
+concurrent modifications.
+In literature shorex is also called read/write-lock, or rwlock
+
+A shorex has three possible states: unlocked -- not owned by any
+thread --, shared locked -- owned by one or more threads --, and
+exclusively locked -- owned by exactly one thread. A shorex can be
+owned by multiple threads in shared mode, and owned by a single thread
+in exclusive mode. A thread attempting to lock an exclusively locked
+shorex, or a thread attempting to exclusive lock a locked shorex is
+suspended until the shorex returns to the unlocked state.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Shorex>
+
+namespace lisle {
+enum Access { shared, exclusive };
+class Shorex
+{
+public:
+  ~Shorex ()
+    throw (permission);
+  Shorex ()
+    throw (resource);
+  bool trylock (Access access)
+    throw ();
+  void lock (Access access)
+    throw (deadlock);
+  void unlock ()
+    throw (permission);
+  bool tryacquire (Access access)
+    throw ();
+  void acquire (Access access)
+    throw (deadlock);
+  void release ()
+    throw (permission);
+private:
+  // @textnit$Disable cloning?
+  Shorex (const Shorex&);
+  Shorex& operator = (const Shorex&);
+};
+}
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} shorex, freeing all resources it might hold. On
+  entrance \farg{this} shorex must be unlocked by all owners.
+  \begin{exception}
+    \item[permission] is thrown if \farg{this}
+      shorex was not unlocked by all owners.
+  \end{exception}
+
+  \constructor{}
+  Constructs \farg{this} shorex.
+  \begin{exception}
+    \item[resource] is thrown if there are not
+      enough system resources to create \farg{this} shorex.
+  \end{exception}
+
+  \function{void}{lock,acquire}{Access \farg{access}}
+  Applies a lock on \farg{this} shorex.\\
+  The given \farg{access} influences the locking as follows:
+  \begin{description}
+    \item[\code{shared}] applies a shared lock to \farg{this}
+      shorex. The calling thread acquires \farg{this} shorex if it is
+      not already held exclusively by another thread. Otherwise the
+      calling thread blocks until it can acquire the lock.\\
+      If the calling thread already holds a lock on \farg{this} shorex
+      a deadlock exception is thrown.
+    \item[\code{exclusive}] applies an exclusive lock to
+      \farg{this} shorex. The calling thread acquires \farg{this}
+      shorex if no other thread holds \farg{this} shorex (shared or
+      exclusive). Otherwise the calling thread blocks until it can
+      acquire the lock.\\
+      If the calling thread already holds a lock on \farg{this} shorex
+      a deadlock exception is thrown.
+  \end{description}
+  \begin{exception}
+    \item[deadlock] is thrown if a calling thread
+      already holding a lock on \farg{this} shorex attempts to relock
+      it.
+  \end{exception}
+
+  \function{bool}{trylock,tryacquire}{Access \farg{access}}
+  These functions behave identically to
+  \code{Shorex::lock(\farg{access})}, except that they don't block the
+  calling thread if \farg{this} shorex can not be locked . If the
+  calling thread could lock \farg{this} shorex \code{true} is
+  returned, else these functions return
+  \code{false}.\\
+  Note that contrary to \code{Shorex::lock()} nothing tells if the
+  locking of \farg{this} shorex failed because of locking logic or
+  lack of resources.
+
+  \function{void}{unlock,release}{}
+  Unlocks \farg{this} shorex. On entrance to this function \farg{this}
+  shorex is assumed to be locked by the calling thread.
+  \begin{exception}
+    \item[permission] is thrown if \farg{this}
+      shorex was not locked by the calling thread.
+  \end{exception}
+\end{mandescription}
+
+\mansection{Cancellation}
+\code{Shorex::lock(exclusive)} is a cancellation point.
+
+\mansection{Async-Signal Safety}
+The \code{Shorex} member functions are not async-signal safe, and
+should not be called from a signal handler. In particular, calling
+\code{Shorex::lock()} or \code{Shorex::unlock()} from a signal handler
+may deadlock the calling thread.
+
+\end{classpage}

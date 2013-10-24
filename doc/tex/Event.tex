@@ -1,0 +1,102 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Event}
+
+An \class{Event} (short for {\em event variable}) is a
+synchronization device that allows threads to suspend execution and
+relinquish the processor until the event gets signaled.
+The basic operations on events are: signal, notify or broadcast the event,
+and wait for the event, suspending the thread's execution until another thread signals the event.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Event>
+
+class Event
+{
+public:
+  ~Event ()
+    throw (permission);
+  Event ()
+    throw (resource);
+  void signal ()
+    throw ();
+  void notify ()
+    throw ();
+  void broadcast ()
+    throw ();
+  void wait ()
+    throw (@textnit$thrcancel?);
+  void wait (const Duration& duration)
+    throw (timeout, @textnit$thrcancel?);
+private:
+  // @textnit$Disable cloning?
+  Event (const Event&);
+  Event& operator = (const Event&);
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} event variable, freeing the resources it
+  might hold. No threads must be waiting on \farg{this} event
+  variable on entrance.
+  \begin{exception}
+    \item[permission] is thrown if there are waiting
+      threads for \farg{this} event variable.
+  \end{exception}
+
+  \constructor{}
+  Initializes \farg{this} event variable.
+  \begin{exception}
+    \item[resource] is thrown if there are not
+      enough system resources to create \farg{this} new event.
+  \end{exception}
+
+  \function{void}{signal,notify}{}
+  Restarts one of the threads that are waiting on \farg{this}
+  event. If no threads are waiting on \farg{this} event,
+  nothing happens. If several threads are waiting on \farg{this}
+  event, exactly one is restarted, but it is not specified
+  which.
+
+  \function{void}{broadcast}{}
+  Restarts all threads that are waiting on \farg{this} event
+  variable. If no threads are waiting on \farg{this} event,
+  nothing happens.
+
+  \function{void}{wait}{}
+  Waits for \farg{this}
+  event variable to be signaled. The thread's execution is
+  suspended and does not consume any CPU time until \farg{this}
+  event variable is signaled.\\
+
+  \function{void}{wait}{const Duration\& \farg{duration}}
+  Waits on \farg{this} event, as the previous (simple) \code{wait()}
+  function does, but this function also bounds the duration of the
+  wait. If \farg{this} event has not been signaled before the time
+  limit given by \farg{duration},
+  exception \code{timeout} is thrown. The \farg{duration}
+  argument specifies a relative time and can only be strictly
+  positive. In case \farg{duration} is negative or zero, the
+  function immediately throws a \code{timeout} exception.
+  \begin{exception}
+    \item[timeout] is thrown if the wait timed out.
+  \end{exception}
+\end{mandescription}
+
+\mansection{Cancellation}
+Both \code{wait()} member functions are cancellation
+points. If a thread is canceled while suspended in one of these
+functions, the thread immediately resumes execution and throws a
+\lisle internal cancel exception. Thus the complete call stack is
+unwound and all object destructors executed.
+
+\mansection{Async-Signal Safety}
+The \class{Event} member functions are not async-signal safe, and
+should not be called from a signal handler. In particular, calling
+either \code{signal()} or \code{broadcast()}
+from a signal handler may deadlock the calling thread.
+
+\end{classpage}

@@ -1,0 +1,102 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Monitor::Lock}
+
+A \class{Monitor::Lock} is a lock monitor. A lock monitor has a
+constructor taking a mutex as argument. The mutex is locked on monitor
+construction and unlocked on monitor destruction. Thus the mutex is
+locked while the monitor is in scope and unlocked when the monitor
+gets out of scope.
+
+Lock monitors are used to avoid complicated mutex lock and unlock call
+sequences in functions. Construct a lock monitor at the begin of a
+function and the mutex will be locked until the function exits either
+normally, with a \code{return}, or because of an exception.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Monitor>
+
+class Monitor::Lock
+{
+public:
+  ~Monitor::Lock ()
+    throw ();
+  Monitor::Lock (Mutex& mutex)
+    throw (Exception::Thread::Deadlock);
+private:
+  // @textnit$Disable cloning?
+  Monitor::Lock (const Monitor::Lock& monitor);
+  Monitor::Lock& operator = (const Monitor::Lock& monitor);
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} lock monitor. Releases the lock on the mutex
+  given in the constructor.
+
+  \constructor{Mutex\& \farg{mutex}}
+  Constructs \farg{this} lock monitor. Acquires the lock on the given
+  \farg{mutex}.
+  \begin{exception}
+    \item[Exception::Thread::Deadlock] is thrown if the given
+      \farg{mutex} is of type \typename{Mutex::Detect} and if a calling
+      thread already owns the \farg{mutex}.
+  \end{exception}
+\end{mandescription}
+
+\end{classpage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{classpage}{Monitor::Unlock}
+
+A \class{Monitor::Unlock} is an unlock monitor. An unlock monitor has
+a constructor taking a mutex as argument. The mutex is unlocked on
+monitor construction and locked on monitor destruction. Thus the mutex
+is unlocked while the monitor is in scope and locked when the monitor
+gets out of scope.
+
+Unlock monitors are used to avoid complicated mutex unlock and lock
+call sequences in functions. Construct an unlock monitor at the begin
+of a function and the mutex will be nlocked until the function exits
+either normally, with a \code{return}, or because of an exception.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Monitor>
+
+class Monitor::Unlock
+{
+public:
+  ~Monitor::Unlock ()
+    throw ();
+  Monitor::Unlock (Mutex& mutex)
+    throw (Exception::Thread::Permission);
+private:
+  // @textnit$Disable cloning?
+  Monitor::Unlock (const Monitor::Unlock& monitor);
+  Monitor::Unlock& operator = (const Monitor::Unlock& monitor);
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} unlock monitor. Acquires the lock on the mutex
+  given in the constructor.
+
+  \constructor{Mutex\& \farg{mutex}}
+  Constructs \farg{this} unlock monitor. Releases the lock on the given
+  \farg{mutex}.
+  \begin{exception}
+    \item[Exception::Thread::Permission] is thrown if the given
+      \farg{mutex} is of type \typename{Mutex::Detect} or
+      \typename{Mutex::Recursive} and the calling thread does not own
+      the \farg{mutex}.
+  \end{exception}
+\end{mandescription}
+
+\end{classpage}

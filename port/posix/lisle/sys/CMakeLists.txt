@@ -1,0 +1,5 @@
+install(FILES Local DESTINATION include/lisle/sys)
+install(FILES Local.tcc DESTINATION include/lisle/sys)
+install(FILES Mutex DESTINATION include/lisle/sys)
+install(FILES Once DESTINATION include/lisle/sys)
+install(FILES Thread DESTINATION include/lisle/sys)

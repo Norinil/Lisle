@@ -1,0 +1,93 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Semaphore}
+
+Semaphores are counters for resources shared between threads. The
+basic operations on semaphores are: increment the counter atomically,
+and wait until the counter is non-null and decrement it atomically.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Semaphore>
+
+namespace lisle {
+class Semaphore
+{
+public:
+  ~Semaphore ()
+    throw (permission);
+  Semaphore (size_t value=0)
+    throw (resource);
+  static size_t max ()
+    throw ();
+  size_t value () const
+    throw ();
+  bool trywait ()
+    throw ();
+  void wait ()
+    throw ();
+  void post ()
+    throw (overflow);
+private:
+  // @textnit$Disable cloning?
+  Semaphore (const Semaphore&);
+  Semaphore& operator = (const Semaphore&);
+};
+}
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} semaphore, freeing all resources it might
+  hold. No threads should be waiting on \farg{this} semaphore at the
+  time of destruction.
+  \begin{exception}
+    \item[permission] is thrown if there are blocked
+      threads waiting on \farg{this} semaphore.
+  \end{exception}
+
+  \constructor{size\_t \farg{value} = 0}
+  Constructs \farg{this} semaphore. The count associated with
+  \farg{this} semaphore is initially set to the given
+  \farg{value}. If no value is given the count is set to zero.
+  \begin{exception}
+    \item[resource] is thrown if there are not
+      enough system resources to create \farg{this} new semaphore.
+  \end{exception}
+
+  \function[static]{size\_t}{max}{}
+  Returns the maximum count a semaphore can store.
+
+  \function[const]{size\_t}{value}{}
+  Returns the current count of \farg{this} semaphore.
+
+  \function{bool}{trywait}{}
+  This function is a non-blocking variant of 
+  \code{wait()}. If \farg{this} semaphore has a non-zero
+  count, the count is atomically decreased and \code{true} is
+  returned, else \code{false} is returned.
+
+  \function{void}{wait}{}
+  Suspends the calling thread until \farg{this} semaphore has non-zero count.
+  The count of \farg{this} semaphore is atomically decreased on wait termination.
+  
+  \function{void}{post}{}
+  Atomically increases the count of \farg{this} semaphore.
+  \begin{exception}
+    \item[overflow] is thrown if after incrementation,
+      \farg{this} semaphore value would exceed the system's maximum
+      value for semaphore count. The semaphore count is left
+      unchanged in this case. The system's maximum semaphore count
+      value is system dependent.
+  \end{exception}
+\end{mandescription}
+
+\mansection{Cancellation}
+\code{Semaphore::wait()} is a cancellation point.
+
+\mansection{Async-Signal Safety}
+  The semaphore functions are not async-signal safe. What this means is
+  that they should not be called from a signal handler.
+
+\end{classpage}

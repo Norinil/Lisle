@@ -1,0 +1,48 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Releaser}
+
+A releaser is an unlock monitor. An unlock monitor has
+a constructor taking a mutex as argument. The mutex is unlocked on
+monitor construction and locked on monitor destruction. Thus the mutex
+is unlocked while the monitor is in scope and locked when the monitor
+gets out of scope.
+
+Unlock monitors are used to avoid complicated mutex unlock and lock
+call sequences in functions. Construct an unlock monitor at the begin
+of a function and the mutex will be unlocked until the function exits
+either normally, with a \code{return}, or because of an exception.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Releaser>
+
+class Releaser
+{
+public:
+  ~Releaser ()
+    throw ();
+  Releaser (Mutex& mutex)
+    throw (permission);
+private:
+  // @textnit$Disable cloning?
+  Releaser (const Releaser&);
+  Releaser& operator = (const Releaser&);
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} unlock monitor. Acquires the lock on the mutex
+  given in the constructor.
+
+  \constructor{Mutex\& \farg{mutex}}
+  Constructs \farg{this} unlock monitor. Releases the lock on the given
+  \farg{mutex}.
+  \begin{exception}
+    \item[permission] is thrown if the calling thread does not own the \farg{mutex}.
+  \end{exception}
+\end{mandescription}
+
+\end{classpage}

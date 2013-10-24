@@ -1,0 +1,45 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Anondle}
+
+An \class{Anondle} is an anonymous handle.
+It allows to remove type information from a handle a bit in the same way as \code{void*} removes type information from C pointers.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Anondle>
+
+class Anondle
+{
+public:
+  ~Anondle ();
+  Anondle ();
+  Anondle (const Anondle& that);
+  Anondle& operator = (const Anondle& that);
+  template <typename T> Anondle (const Handle<T>& handle);
+  template <typename T> Handle<T>* handle () const;
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} anonymous handle.
+  
+  \constructor{}
+  Constructs \farg{this} empty anonymous handle.
+  
+  \constructor{const Anondle\& \farg{that}}
+  Constructs \farg{this} anonymous handle from \farg{that} anonymous handle.
+
+  \operator{Handle\&}{=}{=}{const Anondle\& \farg{that}}
+  Assigns \farg{that} anonymous handle to \farg{this} anonymous handle.
+  
+  \constructor{const Handle<T>\& \farg{handle}}
+  Constructs \farg{this} anonymous handle from \farg{handle}.
+  
+  \function[const]{Handle<T>*}{handle}{}
+  Returns a pointer to the handle stored in \farg{this} anonymous handle.
+\end{mandescription}
+
+\end{classpage}

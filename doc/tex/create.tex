@@ -1,0 +1,235 @@
+%% -*- LaTeX -*-
+
+%%=============================================================================
+
+\begin{manpage}{Creation}
+\let\savedmanlayout=\manlayout
+\renewcommand{\manlayout}{vcompact}
+
+Function \code{create} creates a new thread of control that executes concurrently with the calling thread.
+The thread's main function and arguments are given by means of a \class{Thread} argument, while the thread scheduling policy is given with an optional \class{Schedule} argument.
+
+A total of four different types of thread functions can be created,
+for threads with or without arguments, or for threads returning data
+or threads which return nothing:
+\begin{enumerate}
+  \item \code{void \textit{thread} ()}
+  \item \code{void \textit{thread} (Handle<\textit{TAT}>)}
+  \item \code{Handle<\textit{TRT}> \textit{thread} ()}
+  \item \code{Handle<\textit{TRT}> \textit{thread} (Handle<\textit{TAT}>)}
+\end{enumerate}
+Arguments and/or returns are passed through handles (see section~\manref{sec:Handle}).
+Handles are kind of smart pointers with
+thread safe memory allocation and deallocation. If more complex
+synchronization than memory management is needed in thread arguments
+or returns, data stored in the handle will need a synchronization
+device, like one documented in
+Chapter~\ref{cha:Synchronization-Devices}.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/create>
+
+Thrid create (const Thread& start,
+              const Schedule& schedule = Schedule())
+  throw (resource, permission, virthread);
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \function{Thrid}{create}{%
+    const Thread\& \farg{start},%
+    const Schedule\& \farg{schedule}}
+  Creates a new thread of control that executes concurrently with the
+  calling thread. Returns a \code{Thrid} which identifies the
+  created thread. Don't loose this \code{Thrid} if you intend to
+  join the created thread (what you have to if the created thread is
+  not in detached state). Argument \farg{start} describes the thread's
+  main function and arguments, while the optional argument
+  \farg{schedule} describes the scheduling policy
+  in which the created thread should run.
+  \begin{exception}
+    \item[resource] is thrown if there are
+      not enough system resources to create the new thread. This
+      happens if either too many threads are running in the same
+      process, or if there is a shortage in memory resources.
+    \item[virthread] is thrown if
+      \farg{start}\code{.main()} returns \code{NULL}. In other words
+      if a default \farg{start} argument was given, or if a
+      \code{NULL} function pointer was given to construct
+      \farg{start}.
+    \item[permission] is thrown if the
+      process owner isn't allowed to run a thread with a given
+      scheduling policy given in the \farg{schedule} argument. Only
+      the super user can run threads whith a scheduling policy other
+      than \code{Schedule::Regular}.
+  \end{exception}
+\end{mandescription}
+
+\mansection{Example}
+The following example shows the four different types of thread
+functions that can be created, how to start them, and if needed how to
+give them arguments, and if they return a result how to retrieve the
+handle to the return.
+
+\VerbatimInput[frame=lines,labelposition=topline,label=\textnit{Thread
+  creation},framesep=3ex,xleftmargin=2.5em,numbers=left,tabsize=2]
+  {../example/create-thread.cpp}
+
+\renewcommand{\manlayout}{\savedmanlayout}
+\end{manpage}
+
+%%=============================================================================
+
+% \newpage
+% \index{Thread::exit|(}
+
+% \section{Thread::exit}
+% \label{sec:Thread::exit}
+
+% \nsThreadNote{exit}{function}
+
+% \begin{mansec}{Synopsis}
+% \begin{Synopsis}
+% #include <lyric/Thread>
+
+% void Thread::exit (void* retdataptr = NULL);
+% \end{Synopsis}
+% \end{mansec}
+
+% \begin{mansec}{Description}
+%   \begin{manfunc}{void Thread::exit (void* \farg{retdataptr})}
+%   \end{manfunc}
+% \end{mansec}
+
+% \index{Thread::exit|)}
+
+% %%=============================================================================
+
+% \newpage
+% \index{Thread::set {\it (cancel behaviour)}|(}
+
+% \section{Thread::set {\it (cancel behaviour)}}
+% \label{sec:Thread::set(Thread::Cancel)}
+
+% \code{Thread::set(\farg{cancel})} sets the calling thread's cancel
+% behaviour. See~\lhmref{sec:Thread::Cancel} for the
+% \code{Thread::Cancel} documentation.
+% behaviour.
+
+% \nsThreadNote{set({\it cancel behaviour})}{function}
+
+% \begin{mansec}{Synopsis}
+% \begin{Synopsis}
+% #include <lyric/Thread>
+
+% void Thread::set (const Thread::Cancel& cancel);
+% \end{Synopsis}
+% \end{mansec}
+
+% \begin{mansec}{Description}
+%   \begin{manfunc}{void Thread::set (const Thread::Cancel\& \farg{cancel})}
+%     Set the calling thread's cancel behaviour to the given
+%     \farg{cancel} argument.
+%   \end{manfunc}
+% \end{mansec}
+
+% \index{Thread::set {\it (cancel behaviour)}|)}
+
+% %%=============================================================================
+
+% \vspace*{10ex}
+% \index{Thread::get {\it (cancel behaviour)}|(}
+
+% \section{Thread::get {\it (cancel behaviour)}}
+% \label{sec:Thread::get(Thread::Cancel)}
+
+% \code{Thread::get(\farg{cancel})} grabs the calling thread's cancel
+% behaviour. See~\lhmref{sec:Thread::Cancel} for the
+% \code{Thread::Cancel} documentation.
+
+% \nsThreadNote{get({\it cancel behaviour})}{function}
+
+% \begin{mansec}{Synopsis}
+% \begin{Synopsis}
+% #include <lyric/Thread>
+
+% void Thread::get (Thread::Cancel& cancel);
+% \end{Synopsis}
+% \end{mansec}
+
+% \begin{mansec}{Description}
+%   \begin{manfunc}{void Thread::get (Thread::Cancel\& \farg{cancel})}
+%     Grabs the calling thread's cancel behaviour and returns it in
+%     \farg{cancel}.
+%   \end{manfunc}
+% \end{mansec}
+
+% \index{Thread::get {\it (cancel behaviour)}|)}
+
+% %%=============================================================================
+
+% \newpage
+% \index{Thread::testcancel|(}
+
+% \section{Thread::testcancel}
+% \label{sec:Thread::testcancel}
+
+% \code{Thread::cancel} does nothing except testing for pending
+% cancellation and executing it. Its purpose is to introduce explicit
+% checks for cancellation in long sequences of code that do not call
+% cancellation point functions otherwise.
+
+% \nsThreadNote{testcancel}{function}
+
+% \begin{mansec}{Synopsis}
+% \begin{Synopsis}
+% #include <lyric/Thread>
+
+% void Thread::testcancel ();
+% \end{Synopsis}
+% \end{mansec}
+
+% \begin{mansec}{Description}
+%   \begin{manfunc}{Thread::testcancel ()}
+%     Tests for pending cancellation and executes it.
+%   \end{manfunc}
+% \end{mansec}
+
+% \index{Thread::testcancel|)}
+
+% %%=============================================================================
+
+% \newpage
+% \index{Thread::yield|(}
+
+% \section{Thread::yield}
+% \label{sec:Thread::yield}
+
+% A thread can relinquish the processor voluntarily without blocking by
+% calling \code{Thread::yield()}. The thread will then be moved to the
+% end of the queue for its static priority and a new thread gets to run.
+
+% \nsThreadNote{yield}{function}
+
+% \begin{mansec}{Synopsis}
+% \begin{Synopsis}
+% #include <lyric/Thread>
+
+% void Thread::yield ();
+% \end{Synopsis}
+% \end{mansec}
+
+% \begin{mansec}{Description}
+%   \begin{manfunc}{void Thread::yield ()}
+%     The calling thread relinquishes the processor, giving another
+%     thread a higher chance to run.\\
+%     If the current thread is the only thread in the highest priority
+%     list at that time, this thread will continue to run after a call
+%     to \code{Thread::yield()}.
+%   \end{manfunc}
+% \end{mansec}
+
+% \index{Thread::yield|)}
+
+%%=============================================================================

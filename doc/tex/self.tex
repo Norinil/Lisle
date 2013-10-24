@@ -1,0 +1,143 @@
+%% -*- LaTeX -*-
+
+%%=============================================================================
+
+\begin{manpage}{Suspension}
+\let\savedmanlayout=\manlayout
+\renewcommand{\manlayout}{vcompact}
+
+A thread can relinquish the processor voluntarily.
+\\
+It can call \code{yield} to relinquish the processor without blocking.
+The thread is moved to the end of the queue for its static priority and a new thread gets to run.
+\\
+It can call \code{sleep} to relinquish the processor for a given duration.
+The thread remains unscheduled for the duration of the sleep.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lyric/self>
+
+void yield ();
+
+void sleep (const Duration& duration);
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \function{void}{yield}{}
+    The calling thread relinquishes the processor, giving another thread a higher chance to run.
+    If the current thread is the only thread in the highest priority list at that time, this thread will continue to run after a call to \code{yield()}.
+
+  \function{void}{sleep}{const Duration\& \farg{duration}}
+    This function causes the calling thread to be suspended from execution until the specified \farg{duration} has elapsed.
+    The suspension time may be longer than requested due to scheduling of other activity by the system.
+    The sleeping thread does not consume processing resources.
+\end{mandescription}
+
+\renewcommand{\manlayout}{\savedmanlayout}
+\end{manpage}
+
+%%=============================================================================
+
+\begin{manpage}{Cancellation}
+\let\savedmanlayout=\manlayout
+\renewcommand{\manlayout}{vcompact}
+
+Cancellation is the mechanism by which a thread can terminate the execution of another thread. 
+Functions to \code{set} and \code{get} the thread's cancellation state.
+A thread's cancellation state tells how the thread will honor cancellation requests.
+Table~\ref{tab:Cancellation} lists the possible thread cancellation states and describes how a thread with a given cancellation descriptor will act on cancellation requests.
+\\
+\lisle implements a synchronous cancellation scheme only.
+This means that a thread with enabled cancellation still needs to perform \code{testcancel} calls from time to time to actually honor a cancellation request.
+\\
+See also section~\manref{sec:Thrid}, \code{Thrid::cancel()}, for a description on sending a cancellation request to a thread.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{|l|l|}
+    \hline
+    \textbf{Value} & \textbf{Description} \\
+    \hline
+    \code{cancel::enable} &
+    The thread will honor cancellation requests.
+    \\
+    \hline
+    \code{cancel::disable} &
+    The thread will ignore cancellation requests.
+    \\
+    \hline
+  \end{tabular}
+  \caption{Cancellation states.}
+  \label{tab:Cancellation}
+\end{table}
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/self>
+
+void set (const cancel::State& cancellation);
+void get (cancel::State& cancellation);
+void testcancel ();
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \function{void}{set}{const cancel::State\& \farg{cancellation}}
+  Sets the calling thread's \farg{cancellation} state.
+
+  \function{void}{get}{cancel::State\& \farg{cancellation}}
+  Gets the calling thread's \farg{cancellation} state.
+  
+  \function{void}{testcancel}{}
+  Tests for a pending cancellation request and eventually executes it by throwing a \code{thrcancel} exception.
+  The purpose if this function is to introduce explicit cancellation checks in long sequences of code that do not call a cancellation point function otherwise.
+  \\
+  Throwing an exception ensures proper stack unwinding and instances destruction.
+  It is important to let exception \code{thrcancel} flow through without being caught.
+  See section~\manref{sec:Exceptions.Internal} for details on best practice with \lisle internal exceptions.
+\end{mandescription}
+
+\renewcommand{\manlayout}{\savedmanlayout}
+\end{manpage}
+
+%%=============================================================================
+
+\begin{manpage}{Termination}
+\let\savedmanlayout=\manlayout
+\renewcommand{\manlayout}{vcompact}
+
+A thread can terminate by calling the \code{exit} function.
+An optional return value can be given in a handle by the terminating thread for an eventual joining thread.
+A joining thread gets a \code{terminated} value as return of the \code{join} function.
+\\
+To guarantee proper stack unwinding and instances destruction \lisle implements the explicit thread termination by throwing a \code{threxit} exception.
+It is important to let exception \code{threxit} flow through without being caught.
+See section~\manref{sec:Exceptions.Internal} for details on best practice with \lisle internal exceptions.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lyric/self>
+
+void exit ();
+
+template <typename TRT>
+void exit (const Handle<TRT>& hretd);
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \function{void}{exit}{}
+    This function causes the calling thread to terminate.
+    A joining thread gets a \code{terminated} code.
+
+  \function{void}{exit}{const Handle<TRT>\& \farg{hretd}}
+    This function causes the calling thread to terminate and return some data stored in \farg{hretd} to a joining thread.
+    A joining thread gets a \code{terminated} code.
+\end{mandescription}
+
+\renewcommand{\manlayout}{\savedmanlayout}
+\end{manpage}
+
+%%=============================================================================

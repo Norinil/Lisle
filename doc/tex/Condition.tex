@@ -1,0 +1,129 @@
+%% -*- LaTeX -*-
+
+\begin{classpage}{Condition}
+
+A \class{Condition} (short for {\em condition variable}) is a
+synchronization device that allows threads to suspend execution and
+relinquish the processor until some predicate on shared data is
+satisfied. The basic operations on conditions are: signal the
+condition (when the predicate becomes true), and wait for the
+condition, suspending the thread's execution until another thread
+signals the condition.
+
+A condition variable must always be associated with a mutex, to avoid
+the race condition where a thread prepares to wait on a condition
+variable and another thread signals the condition just before the
+first thread actually waits on it.
+
+\mansection{Synopsis}
+\begin{mansynopsis}
+#include <lisle/Condition>
+
+class Condition
+{
+public:
+  ~Condition ()
+    throw (permission);
+  Condition (Mutex& mutex)
+    throw (resource);
+  void signal ()
+    throw ();
+  void notify ()
+    throw ();
+  void broadcast ()
+    throw ();
+  void wait ()
+    throw (permission, @textnit$thrcancel?);
+  void wait (const Duration& duration)
+    throw (permission, timeout, @textnit$thrcancel?);
+private:
+  // @textnit$Disable cloning?
+  Condition (const Condition&);
+  Condition& operator = (const Condition&);
+};
+\end{mansynopsis}
+
+\mansection{Description}
+\begin{mandescription}
+  \destructor
+  Destroys \farg{this} condition variable, freeing the resources it
+  might hold. No threads must be waiting on \farg{this} condition
+  variable on entrance.
+  \begin{exception}
+    \item[permission] is thrown if there are waiting
+      threads for \farg{this} condition variable.
+  \end{exception}
+
+  \constructor{Mutex\& \farg{mutex}}
+  Initializes \farg{this} condition variable.
+  \begin{exception}
+    \item[resource] is thrown if there are not
+      enough system resources to create \farg{this} new condition.
+  \end{exception}
+
+  \function{void}{signal,notify}{}
+  Restarts one of the threads that are waiting on \farg{this}
+  condition. If no threads are waiting on \farg{this} condition,
+  nothing happens. If several threads are waiting on \farg{this}
+  condition, exactly one is restarted, but it is not specified
+  which.
+
+  \function{void}{broadcast}{}
+  Restarts all threads that are waiting on \farg{this} condition
+  variable. If no threads are waiting on \farg{this} condition,
+  nothing happens.
+
+  \function{void}{wait}{}
+  Atomically unlocks the \farg{mutex} given in the constructor
+  and waits for \farg{this}
+  condition variable to be signaled. The thread's execution is
+  suspended and does not consume any CPU time until \farg{this}
+  condition variable is signaled. The given \farg{mutex} must be
+  locked by the calling thread on entrance to this function, else an
+  \class{permission} exceprion is thrown.\\
+  Unlocking the given \farg{mutex} and suspending on \farg{this}
+  condition variable is done atomically. Thus, if all threads always
+  acquire the given \farg{mutex} before signaling the condition, this
+  guarantees that \farg{this} condition cannot be signaled (and thus
+  ignored) between the time a thread locks the given \farg{mutex} and
+  the time it waits on \farg{this} condition variable.
+  \begin{exception}
+    \item[permission] is thrown if the associated mutex 
+	  was not locked by the calling thread.
+    \item[thrcancel] is thrown if the thread was canceled.
+  \end{exception}
+
+  \function{void}{wait}{const Duration\& \farg{duration}}
+  Atomically unlocks the \farg{mutex} given in the constructor
+  and waits on \farg{this}
+  condition, as the previous (simple) \code{wait()}
+  function does, but this function also bounds the duration of the
+  wait. If \farg{this} condition has not been signaled before the time
+  limit given by \farg{duration},
+  the given \farg{mutex} is re-acquired,
+  and exception \code{timeout} is thrown. The \farg{duration}
+  argument specifies a relative time and can only be strictly
+  positive. In case \farg{duration} is negative or zero, the
+  function immediately throws a \code{timeout} exception.\\
+  \begin{exception}
+    \item[permission] is thrown if the associated mutex 
+      was not locked by the calling thread.
+    \item[timeout] is thrown if the wait timed out.
+    \item[thrcancel] is thrown if the thread was canceled.
+  \end{exception}
+\end{mandescription}
+
+\mansection{Cancellation}
+Both \code{wait()} member functions are cancellation
+points. If a thread is canceled while suspended in one of these
+functions, the thread immediately resumes execution and throws a
+\lisle internal cancel exception. Thus the complete call stack is
+unwound and all object destructors executed.
+
+\mansection{Async-Signal Safety}
+The \code{Condition} member functions are not async-signal safe, and
+should not be called from a signal handler. In particular, calling
+either \code{signal()} or \code{broadcast()}
+from a signal handler may deadlock the calling thread.
+
+\end{classpage}
