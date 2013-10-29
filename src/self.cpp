@@ -23,6 +23,7 @@
 #include <lisle/Thrid>
 #include <lisle/Thread>
 #include <lisle/Acquirer>
+#include <lisle/Releaser>
 #include <lisle/self>
 #include <lisle/thrargs>
 #include <new>
@@ -30,6 +31,19 @@
 using namespace std;
 
 namespace lisle {
+
+void suspend ()
+{
+	// Synchronous suspend by calling thread
+	threadle thr(self);
+	Acquirer lock(thr->guard);
+	if ((thr->state < thread::canceling) && (thr->state != thread::suspended))
+	{
+		thr->state = thread::suspended;
+		thr->suspend();
+		thr->state = thread::running;
+	}
+}
 
 void exit (const lisle::Anondle& hretd)
 {
@@ -60,8 +74,7 @@ void launch (const lisle::Thread& thread)
 		{
 			case Thread::Suspended :
 			{
-				Thrid self;
-				self.suspend();
+				suspend();
 				testcancel();
 			} // no break: after being suspended a thread can only enter the running state
 			case Thread::Running :

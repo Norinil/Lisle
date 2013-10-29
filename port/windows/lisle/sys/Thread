@@ -35,10 +35,10 @@ struct Thread
 {
 	HANDLE handle; // Thread
 	DWORD nid; // Numeric ID
-	struct event
+	struct restart
 	{
-		HANDLE restart;
-	} event;
+		HANDLE event;
+	} restart;
 	lisle::Mutex guard;
 	~Thread ();
 	Thread ();

@@ -6,17 +6,19 @@
 \let\savedmanlayout=\manlayout
 \renewcommand{\manlayout}{vcompact}
 
-A thread can relinquish the processor voluntarily.
-\\
+A thread can relinquish the processor voluntarily, either in a non-blocking way, or by blocking the thread for either a specified or unspecified duration.
+It can call \code{suspend} to relinquish the processor for an unspecified duration.
+A suspended thread must be resumed by another thread to continue its execution.
 It can call \code{yield} to relinquish the processor without blocking.
 The thread is moved to the end of the queue for its static priority and a new thread gets to run.
-\\
 It can call \code{sleep} to relinquish the processor for a given duration.
 The thread remains unscheduled for the duration of the sleep.
 
 \mansection{Synopsis}
 \begin{mansynopsis}
 #include <lisle/self>
+
+void suspend ();
 
 void yield ();
 
@@ -25,6 +27,10 @@ void sleep (const Duration& duration);
 
 \mansection{Description}
 \begin{mandescription}
+  \function{void}{suspend}{}
+  Suspends the execution of the calling thread.
+  A suspended thread must be awaken with \code{Thrid::resume()}.
+
   \function{void}{yield}{}
     The calling thread relinquishes the processor, giving another thread a higher chance to run.
     If the current thread is the only thread in the highest priority list at that time, this thread will continue to run after a call to \code{yield()}.

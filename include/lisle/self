@@ -40,6 +40,7 @@ namespace lisle { void exit (const lisle::Anondle& hretd); }
 /// Functions that can be called in the running thread.
 namespace lisle {
 struct cancel { enum State { disable, enable }; };
+EXI void suspend ();
 EXI void yield ();
 EXI void sleep (const Duration& duration);
 EXI void exit ();
@@ -93,6 +94,7 @@ struct thread : public sys::Thread
 	void waitjoiner ();
 	void waitjoiningcancel (thread* thread);
 private:
+	typedef sys::Thread base;
 	void waitrestart (const Duration& duration);
 };
 }

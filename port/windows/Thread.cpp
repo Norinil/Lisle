@@ -28,7 +28,7 @@ namespace sys {
 Thread::~Thread ()
 {
 	BOOL rc;
-	rc = CloseHandle(event.restart);
+	rc = CloseHandle(restart.event);
 	rc = CloseHandle(handle);
 }
 
@@ -36,7 +36,7 @@ Thread::Thread ()
 {
 	handle = GetCurrentThread();
 	nid = GetCurrentThreadId();
-	event.restart = CreateEvent(NULL, FALSE, FALSE, NULL);
+	restart.event = CreateEvent(NULL, FALSE, FALSE, NULL);
 }
 
 uint32_t Thread::id () const

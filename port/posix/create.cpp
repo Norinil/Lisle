@@ -32,7 +32,6 @@
 #include <cerrno>
 #include <cstdio>
 #include <new>
-#include "signal"
 
 static int convert (const lisle::Schedule::Priority& priority, int policy)
 {
@@ -84,7 +83,6 @@ static void* setup (void* args)
 {
 	// Spawned thread
 	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
-	lisle::sys::siginit.each();
 	lisle::startup((lisle::thrargs*)args);
 	pthread_exit(NULL);
 }
@@ -102,7 +100,6 @@ throw (resource, permission, virthread)
 		thrargs* targs;
 		sched_param param;
 		
-		sys::siginit.once();
 		assert(start.main() != NULL, lisle::virthread());
 		targs = new thrargs(result.thr); // Can throw std::bad_alloc
 		{

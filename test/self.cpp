@@ -23,6 +23,7 @@
 #include "test.h"
 #include <lisle/self>
 #include <lisle/create>
+#include <lisle/Strid>
 
 using namespace lisle;
 
@@ -98,4 +99,28 @@ TEST(selfTest, disableCancel)
 	cancel::State cancelability;
 	get(cancelability);
 	EXPECT_EQ(cancelability, cancel::disable);
+}
+
+/// Test the synchronous suspend asynchronous resume pair
+TEST (selfTest, suspend_resume)
+{
+	class Thread : public Strand
+	{
+	public:
+		bool done;
+		Thread () : done(false) {}
+	private:
+		void main ()
+		{
+			suspend();
+			done = true;
+		}
+	};
+	Strid handle = Strid(new Thread);
+	Thread* thread = dynamic_cast<Thread*>((Strand*)handle);
+	EXPECT_FALSE(thread->done);
+	handle.resume();
+	lisle::Exit exit = handle.join();
+	EXPECT_EQ(exit, lisle::terminated);
+	EXPECT_TRUE(thread->done);
 }

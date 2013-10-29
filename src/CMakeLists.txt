@@ -34,9 +34,7 @@ set(LIB_SRCS
 	${CMAKE_SOURCE_DIR}/port/${CPU_ARCH}/${BUILD_SYS}/Countic.cpp
 )
 
-if (THREAD_SYS MATCHES posix)
-	set(LIB_SRCS ${LIB_SRCS} ${CMAKE_SOURCE_DIR}/port/${THREAD_SYS}/signal.cpp)
-elseif (THREAD_SYS MATCHES windows)
+if (THREAD_SYS MATCHES windows)
 	set(LIB_SRCS ${LIB_SRCS} ${CMAKE_SOURCE_DIR}/port/${THREAD_SYS}/lockcmpxchg.cpp)
 endif ()
 

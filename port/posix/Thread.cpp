@@ -21,14 +21,33 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 #include <lisle/sys/Thread>
+#include <lisle/exceptions>
+#include <cerrno>
 
 namespace lisle {
 namespace sys {
 
+Thread::~Thread ()
+{
+	int rc = pthread_cond_destroy(&restart.condition);
+	if (rc == EBUSY)
+		throw permission();
+}
+
 Thread::Thread ()
 : signal(0)
 , handle(pthread_self())
-{}
+{
+	int rc;
+	pthread_condattr_t attr;
+	rc = pthread_condattr_init(&attr);
+	if (rc != 0)
+		throw resource();
+	rc = pthread_cond_init(&restart.condition, &attr);
+	pthread_condattr_destroy(&attr);
+	if (rc != 0)
+		throw resource();
+}
 
 uint32_t Thread::id () const
 {

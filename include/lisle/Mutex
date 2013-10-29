@@ -32,6 +32,7 @@
 namespace lisle {
 class Mutex
 {
+	friend struct thread;
 public:
 	EXI ~Mutex () throw (permission);
 	EXI Mutex () throw (resource);

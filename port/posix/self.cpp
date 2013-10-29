@@ -21,10 +21,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 #include <lisle/self>
-#include <signals.h>
 #include <lisle/Acquirer>
 #include <lisle/Releaser>
-#include <csignal>
+#include <ctime>
+#include <cerrno>
 #include <sched.h>
 
 #define MAX_TVSEC  0x7fffffff
@@ -104,76 +104,43 @@ void thread::yield ()
 
 void thread::suspend ()
 {
-	// Asynchronous suspend
-	pthread_kill(this->handle, LISLE_SIG_SUSPEND);
+	// Warning: this->guard *must* have been locked before calling this function.
+	pthread_cond_wait(&base::restart.condition, &this->guard.mutex);
 }
 
 void thread::resume ()
 {
-	// Resume asynchronous suspend
-	pthread_kill(this->handle, LISLE_SIG_RESTART);
-	while (this->state != thread::running)
-		sched_yield();
+	pthread_cond_signal(&base::restart.condition);
 }
 
 void thread::restart ()
 {
-	pthread_kill(this->handle, LISLE_SIG_RESTART);
+	pthread_cond_signal(&base::restart.condition);
 }
 
 void thread::waitrestart ()
 {
 	// Wait for restart signal
 	// Warning: this->guard *must* have been locked before calling this function.
-	
-	sigset_t mask;
-	int signal;
-
-	pthread_sigmask(SIG_SETMASK, NULL, &mask);
-	sigaddset(&mask, LISLE_SIG_RESTART);
-	{
-		Releaser release(this->guard);
-		sigwait(&mask, &signal);
-	}
+	pthread_cond_wait(&base::restart.condition, &this->guard.mutex);
 }
 
 void thread::waitrestart (const Duration& duration)
 {
 	// Wait for restart signal or timeout
 	// Warning: this->guard *must* have been locked before calling this function.
-	
-	timespec rem;
-	timespec req;
-	int signal = 0;
-	rem.tv_sec = duration.sec();
-	rem.tv_nsec = duration.nsec();
-	sigset_t mask;
-	sigemptyset(&mask);
-	sigaddset(&mask, LISLE_SIG_RESTART);
-	sigaddset(&mask, 36);
-	do
+	timespec abstime;
+	clock_gettime(CLOCK_REALTIME, &abstime);
+	abstime.tv_nsec += duration.nsec();
+	if (abstime.tv_nsec > MAX_TVNSEC)
 	{
-		bool signaled;
-		req = rem;
-		{
-			Releaser release(this->guard);
-			pthread_sigmask(SIG_UNBLOCK, &mask, NULL);
-			signaled = nanosleep(&req, &rem) != 0;
-			pthread_sigmask(SIG_BLOCK, &mask, NULL);
-		}
-		signal = this->signal; // this->signal is set by self->signal assignment in posix/signal.cpp function signaled
-		this->signal = 0;
-		if (signaled)
-		{ // we're a cancelation point: test for cancelation
-			Releaser release(this->guard);
-			testcancel();
-		}
-		else // not signaled means timed-out
-		{
-			throw lisle::timeout();
-		}
+		abstime.tv_nsec %= (MAX_TVNSEC+1);
+		++abstime.tv_sec;
 	}
-	while (signal != LISLE_SIG_RESTART);
+	abstime.tv_sec += duration.sec();
+	int rc = pthread_cond_timedwait(&base::restart.condition, &this->guard.mutex, &abstime);
+	if (rc == ETIMEDOUT)
+		throw timeout();
 }
 
 void thread::waitjoiningcancel (thread* thread)

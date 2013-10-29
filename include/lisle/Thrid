@@ -49,7 +49,6 @@ public:
 	bool operator != (const Thrid& that) const { return !this->thr->equal(that.thr); }
 	EXI void detach () throw (lisle::detach);
 	EXI void cancel () throw ();
-	EXI void suspend () throw (lisle::deadlock);
 	EXI void resume () throw ();
 	Exit join () throw (lisle::join, lisle::deadlock, lisle::thrcancel)
 	{

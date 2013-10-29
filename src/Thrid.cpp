@@ -86,20 +86,6 @@ throw ()
 	}
 }
 
-void Thrid::suspend ()
-throw (lisle::deadlock)
-{
-	Acquirer thread(thr->guard);
-	if ((thr->state < thread::canceling) && (thr->state != thread::suspended))
-	{
-		thr->state = thread::suspended;
-		{
-			Releaser release(thr->guard);
-			thr->suspend();
-		}
-	}
-}
-
 void Thrid::resume ()
 throw ()
 {

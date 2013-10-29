@@ -111,19 +111,20 @@ void thread::yield ()
 
 void thread::suspend ()
 {
-	// Asynchronous suspend
+	// Warning: this->guard *must* have been locked before calling this function.
+	Releaser release(this->guard);
 	SuspendThread(this->handle);
 }
 
 void thread::resume ()
 {
-	// Resume asynchronous suspend
+	// Resume suspend
 	ResumeThread(this->handle);
 }
 
 void thread::restart ()
 {
-	SetEvent(this->event.restart);
+	SetEvent(base::restart.event);
 }
 
 void thread::waitrestart ()
@@ -134,7 +135,7 @@ void thread::waitrestart ()
 	DWORD status;
 	{
 		lisle::Releaser release(this->guard);
-		status = WaitForSingleObject(this->event.restart, INFINITE);
+		status = WaitForSingleObject(base::restart.event, INFINITE);
 	}
 	switch (status)
 	{
@@ -170,7 +171,7 @@ void thread::waitrestart (const Duration& duration)
 	{
 		{
 			lisle::Releaser release(this->guard);
-			status = WaitForSingleObject(this->event.restart, msecs);
+			status = WaitForSingleObject(base::restart.event, msecs);
 		}
 		switch (status)
 		{

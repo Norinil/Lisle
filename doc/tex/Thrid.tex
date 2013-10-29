@@ -38,8 +38,6 @@ public:
     throw (detach);
   void cancel ()
     throw ();
-  void suspend ()
-    throw (deadlock);
   void resume ()
     throw ();
   Exit join ();
@@ -144,16 +142,6 @@ public:
   \\
   When a thread eventually honors a cancellation request, it performs as if \code{exit} has been called at that point. 
   See section~\manref{sec:Cancellation} for more information on thread cancellation.
-
-  \function{void}{suspend}{}
-  Suspends execution of \farg{this} thread.
-  \\
-  A suspended thread will not be awakened by a signal. 
-  The signal stays pending until the execution of \farg{this} thread is resumed.
-  \begin{exception}
-    \item[deadlock] is thrown if suspending
-      \farg{this} thread would deadlock the process.
-  \end{exception}
 
   \function{void}{resume}{}
   Resumes the execution of \farg{this} suspended thread.

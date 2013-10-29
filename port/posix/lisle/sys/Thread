@@ -33,8 +33,13 @@ namespace sys {
 struct Thread
 {
 	pthread_t handle;
+	struct restart
+	{
+		pthread_cond_t condition;
+	} restart;
 	int signal;
 	lisle::Mutex guard;
+	~Thread ();
 	Thread ();
 	uint32_t id () const;
 	bool equal (const Thread& that) const;
