@@ -32,11 +32,10 @@ namespace lisle {
 namespace sys {
 struct Mutex
 {
-	long waiters;
+	HANDLE event;
 	DWORD owner;
+	long waiters;
 	uint32_t recursions;
-	HANDLE semaphore;
-	CRITICAL_SECTION guard;
 };
 }
 }

@@ -26,7 +26,6 @@
 */
 #include "lockcmpxchg"
 #include <lisle/Mutex>
-#include <lisle/Semaphore>
 #include <lisle/assert>
 #include <limits.h>
 
@@ -42,25 +41,16 @@ namespace lisle {
 Mutex::~Mutex ()
 throw (permission)
 {
-	if (mutex.semaphore != NULL)
-		CloseHandle(mutex.semaphore);
-	DeleteCriticalSection(&mutex.guard);
+	if (mutex.event != NULL)
+		CloseHandle(mutex.event);
 	assert(mutex.waiters == 0, permission());
 }
 
 Mutex::Mutex ()
 throw (resource)
 {
-	try
-	{
-		InitializeCriticalSection(&mutex.guard);
-	}
-	catch (...)
-	{
-		throw resource();
-	}
-	mutex.semaphore = CreateSemaphore(NULL, 0, INT_MAX, NULL);
-	assert(mutex.semaphore != NULL, resource());
+	mutex.event = CreateEvent(NULL, FALSE, FALSE, NULL);
+	assert(mutex.event != NULL, resource());
 	mutex.waiters = 0;
 	mutex.owner = OWNER_NONE;
 	mutex.recursions = 0;
@@ -84,7 +74,7 @@ throw (deadlock)
 		}
 		else
 		{
-			WaitForSingleObject(mutex.semaphore, INFINITE);
+			WaitForSingleObject(mutex.event, INFINITE);
 			mutex.owner = self;
 		}
 	}
@@ -113,10 +103,8 @@ throw (permission)
 	mutex.owner = OWNER_NONE;
 	if (mutex.waiters != 0)
 	{
-		EnterCriticalSection(&mutex.guard);
 		if (InterlockedDecrement(&mutex.waiters) > 0)
-			ReleaseSemaphore(mutex.semaphore, 1, NULL);
-		LeaveCriticalSection(&mutex.guard);
+			SetEvent(mutex.event);
 	}
 }
 
