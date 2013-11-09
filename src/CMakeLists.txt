@@ -42,7 +42,7 @@ endif ()
 
 if (BUILD_SHARED_LIBS)
 	add_library(lisle SHARED ${LIB_SRCS})
-	set_target_properties(lisle PROPERTIES VERSION "${LISLE_VERSION_MAJOR}.${LISLE_VERSION_MINOR}.${LISLE_VERSION_MICRO}")
+	set_target_properties(lisle PROPERTIES VERSION "${LISLE_VERSION_MAJOR}.${LISLE_VERSION_MINOR}.${LISLE_VERSION_PATCH}")
 	set_target_properties(lisle PROPERTIES SOVERSION "${LISLE_VERSION_MAJOR}")
 else ()
 	add_library(lisle STATIC ${LIB_SRCS})
