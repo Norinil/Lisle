@@ -30,9 +30,5 @@ int main (int argc, char* argv[])
 {
 	testing::InitGoogleTest(&argc, argv);
 	int rc = RUN_ALL_TESTS();
-#if defined(WIN32) || defined(_Windows)
-	std::cout << "Press [Enter] to close test...";
-	std::getchar();
-#endif
 	return rc;
 }
