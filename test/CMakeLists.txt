@@ -35,6 +35,10 @@ set(TEST_SRCS
 	self.cpp
 )
 add_executable(runner runner.cpp ${TEST_SRCS})
-target_link_libraries(runner gtest lisle)
+set(TEST_LIBS gtest lisle)
+if (HAVE_CLOCK_GETTIME_IN_RT)
+	set(TEST_LIBS ${TEST_LIBS} rt)
+endif ()
+target_link_libraries(runner ${TEST_LIBS})
 
 add_test(lisle runner)

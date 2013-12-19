@@ -58,7 +58,10 @@ if (CPU_ARCH MATCHES "^AMD64*")
 endif ()
 
 set(OPERATING_SYS ${THREAD_SYS})
-if (APPLE)
+if (UNIX)
+	include(CheckLibraryExists)
+	CHECK_LIBRARY_EXISTS(rt clock_gettime "time.h" HAVE_CLOCK_GETTIME_IN_RT)
+elseif (APPLE)
 	set(OPERATING_SYS darwin)
 endif ()
 
