@@ -24,10 +24,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 */
-#include "lockcmpxchg"
 #include <lisle/Retex>
 #include <lisle/assert>
 #include <limits.h>
+#include <intrin.h>
+
+#pragma intrinsic (_InterlockedIncrement)
+#pragma intrinsic (_InterlockedDecrement)
 
 #define OWNER_NONE 0
 
@@ -60,7 +63,7 @@ void Retex::lock ()
 throw ()
 {
 	DWORD self;
-	if (InterlockedIncrement(&mutex.waiters) == 1)
+	if (_InterlockedIncrement(&mutex.waiters) == 1)
 	{
 		mutex.owner = GetCurrentThreadId();
 	}
@@ -69,7 +72,7 @@ throw ()
 		self = GetCurrentThreadId();
 		if (mutex.owner == self)
 		{
-			InterlockedDecrement(&mutex.waiters);
+			_InterlockedDecrement(&mutex.waiters);
 			mutex.recursions++;
 		}
 		else
@@ -83,9 +86,7 @@ throw ()
 bool Retex::trylock ()
 throw ()
 {
-	if (lockcmpxchg == NULL)
-		lockcmpxchg_init();
-	if ((*lockcmpxchg)(&mutex.waiters, 1, 0) == 0)
+	if (InterlockedCompareExchange(&mutex.waiters, 1, 0) == 0)
 	{
 		mutex.owner = GetCurrentThreadId();
 		return true;
@@ -113,7 +114,7 @@ throw (permission)
 		mutex.owner = OWNER_NONE;
 		if (mutex.waiters != 0)
 		{
-			if (InterlockedDecrement(&mutex.waiters) > 0)
+			if (_InterlockedDecrement(&mutex.waiters) > 0)
 				SetEvent(mutex.event);
 		}
 	}

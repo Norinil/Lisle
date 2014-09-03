@@ -20,8 +20,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 */
-#include "lockcmpxchg"
 #include <lisle/Once>
+#include <windows.h>
+#include <intrin.h>
+
+#pragma intrinsic (_InterlockedDecrement)
 
 namespace lisle {
 
@@ -46,7 +49,7 @@ void Once::run ()
 	 */
 	if (!control.done)
 	{
-		if (InterlockedDecrement(&control.todo) == 0)
+		if (_InterlockedDecrement(&control.todo) == 0)
 		{
 			(*once)();
 			control.done = true;

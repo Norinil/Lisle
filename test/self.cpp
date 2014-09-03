@@ -25,6 +25,11 @@
 #include <lisle/create>
 #include <lisle/Strid>
 
+#ifdef _MSC_VER
+#pragma warning (disable:4211)
+#pragma warning (disable:4505)
+#endif
+
 using namespace lisle;
 
 /// Ensure yield doesn't throw an exception.

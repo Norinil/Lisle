@@ -34,10 +34,6 @@ set(LIB_SRCS
 	${PROJECT_SOURCE_DIR}/port/${CPU_ARCH}/${BUILD_SYS}/Countic.cpp
 )
 
-if (THREAD_SYS MATCHES windows)
-	set(LIB_SRCS ${LIB_SRCS} ${CMAKE_SOURCE_DIR}/port/${THREAD_SYS}/lockcmpxchg.cpp)
-endif ()
-
 if (BUILD_SHARED_LIBS)
 	add_library(lisle SHARED ${LIB_SRCS})
 	set_target_properties(lisle PROPERTIES VERSION "${LISLE_VERSION_MAJOR}.${LISLE_VERSION_MINOR}.${LISLE_VERSION_PATCH}")

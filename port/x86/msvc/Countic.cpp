@@ -1,7 +1,7 @@
 /* -*- mode:C++ -*-
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2002-2012, Markus Schütz
+// Copyright (C) 2002-2014, Markus Schütz
 //
 // This library is free software. You can redistribute  and/or  modify it under
 // the terms of the GNU Lesser General Public License  as published by the Free
@@ -28,55 +28,33 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 #include <lisle/Countic>
+#include <intrin.h>
+
+#pragma intrinsic (_InterlockedIncrement)
+#pragma intrinsic (_InterlockedDecrement)
 
 namespace lisle {
 
 void Countic::inc ()
 {
-	// Correct as long as this->val is at offset zero from this.
-	__asm
-	{
-		     mov eax, this
-		lock inc dword ptr [eax]
-	}
+	_InterlockedIncrement(&this->val);
 }
 
 void Countic::dec ()
 {
-	// Correct as long as this->val is at offset zero from this.
-	__asm
-	{
-		     mov eax, this
-		lock dec dword ptr [eax]
-	}
+	_InterlockedDecrement(&this->val);
 }
 
 bool Countic::inctz ()
 {
-	unsigned char c;
-  
-	// Correct as long as this->val is at offset zero from this.
-	__asm
-	{
-		     mov  eax, this
-		lock inc  dword ptr [eax]
-		     sete c
-	}
-	return c != 0;
+	long c = _InterlockedIncrement(&this->val);
+	return c == 0;
 }
 
 bool Countic::dectz ()
 {
-	unsigned char c;
-  
-	// Correct as long as this->val is at offset zero from this.
-	__asm
-	{
-		     mov  eax, this
-		lock dec  dword ptr [eax]
-		     sete c
-	}
-	return c != 0;
+	long c = _InterlockedDecrement(&this->val);
+	return c == 0;
 }
 
 }
