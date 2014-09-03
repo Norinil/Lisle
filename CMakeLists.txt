@@ -8,9 +8,9 @@ option(BUILD_SHARED_LIBS "Build shared library (DLL)." OFF)
 
 # When other libraries are using a shared version of runtime libraries,
 # Lisle also has to use one.
-option(lisle_force_shared_crt "Use shared (DLL) run-time lib even when Lisle is built as static lib." OFF)
+option(LISLE_FORCE_SHARED_CRT "Use shared (DLL) run-time lib even when Lisle is built as static lib." OFF)
 
-option(lisle_build_tests "Build all of lisle's own tests." OFF)
+option(LISLE_BUILD_TESTS "Build all of lisle's own tests." OFF)
 
 ################################################################################
 #
@@ -72,8 +72,10 @@ elseif (CMAKE_USE_WIN32_THREADS_INIT)
 	set(THREAD_SYS windows)
 endif ()
 
-add_subdirectory(sub/gtest)
-add_subdirectory(src)
-add_subdirectory(test)
 add_subdirectory(include/lisle)
+add_subdirectory(src)
 add_subdirectory(port/${THREAD_SYS})
+if (LISLE_BUILD_TESTS)
+	add_subdirectory(sub/gtest)
+	add_subdirectory(test)
+endif()
