@@ -4,12 +4,12 @@ if (GCC)
 	add_definitions(-std=c++0x)
 endif ()
 
-include_directories(${CMAKE_BINARY_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/port/${BUILD_SYS})
-include_directories(${CMAKE_SOURCE_DIR}/port/${OPERATING_SYS})
-include_directories(${CMAKE_SOURCE_DIR}/port/${THREAD_SYS})
-include_directories(${CMAKE_SOURCE_DIR}/port)
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${PROJECT_BINARY_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/port/${BUILD_SYS})
+include_directories(${PROJECT_SOURCE_DIR}/port/${OPERATING_SYS})
+include_directories(${PROJECT_SOURCE_DIR}/port/${THREAD_SYS})
+include_directories(${PROJECT_SOURCE_DIR}/port)
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 set(LIB_SRCS
 	lisle.cpp
@@ -25,13 +25,13 @@ set(LIB_SRCS
 	list.cpp
 	prioqueue.cpp
 	self.cpp
-	${CMAKE_SOURCE_DIR}/port/${THREAD_SYS}/Mutex.cpp
-	${CMAKE_SOURCE_DIR}/port/${THREAD_SYS}/Retex.cpp
-	${CMAKE_SOURCE_DIR}/port/${THREAD_SYS}/Once.cpp
-	${CMAKE_SOURCE_DIR}/port/${THREAD_SYS}/Thread.cpp
-	${CMAKE_SOURCE_DIR}/port/${THREAD_SYS}/create.cpp
-	${CMAKE_SOURCE_DIR}/port/${THREAD_SYS}/self.cpp
-	${CMAKE_SOURCE_DIR}/port/${CPU_ARCH}/${BUILD_SYS}/Countic.cpp
+	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/Mutex.cpp
+	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/Retex.cpp
+	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/Once.cpp
+	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/Thread.cpp
+	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/create.cpp
+	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/self.cpp
+	${PROJECT_SOURCE_DIR}/port/${CPU_ARCH}/${BUILD_SYS}/Countic.cpp
 )
 
 if (THREAD_SYS MATCHES windows)
