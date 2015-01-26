@@ -25,6 +25,7 @@
 #include <lisle/Releaser>
 #include <ctime>
 #include <cerrno>
+#include <csignal>
 #include <sched.h>
 
 #define MAX_TVSEC  0x7fffffff
@@ -105,7 +106,16 @@ void thread::yield ()
 void thread::suspend ()
 {
 	// Warning: this->guard *must* have been locked before calling this function.
+	// Disable signals to avoid suprious wakeups.
+	struct set {
+		sigset_t news;
+		sigset_t olds;
+	} set;
+	sigfillset(&set.news);
+	sigdelset(&set.news, SIGINT); // allow Ctrl-C
+	pthread_sigmask(SIG_SETMASK, &set.news, &set.olds);
 	pthread_cond_wait(&base::restart.condition, &this->guard.mutex);
+	pthread_sigmask(SIG_SETMASK, &set.olds, 0);
 }
 
 void thread::resume ()
@@ -122,13 +132,23 @@ void thread::waitrestart ()
 {
 	// Wait for restart signal
 	// Warning: this->guard *must* have been locked before calling this function.
+	// Disable signals to avoid suprious wakeups.
+	struct set {
+		sigset_t news;
+		sigset_t olds;
+	} set;
+	sigfillset(&set.news);
+	sigdelset(&set.news, SIGINT); // allow Ctrl-C
+	pthread_sigmask(SIG_SETMASK, &set.news, &set.olds);
 	pthread_cond_wait(&base::restart.condition, &this->guard.mutex);
+	pthread_sigmask(SIG_SETMASK, &set.olds, 0);
 }
 
 void thread::waitrestart (const Duration& duration)
 {
 	// Wait for restart signal or timeout
 	// Warning: this->guard *must* have been locked before calling this function.
+	// Disable signals to avoid suprious wakeups.
 	timespec abstime;
 	clock_gettime(CLOCK_REALTIME, &abstime);
 	abstime.tv_nsec += duration.nsec();
@@ -138,7 +158,15 @@ void thread::waitrestart (const Duration& duration)
 		++abstime.tv_sec;
 	}
 	abstime.tv_sec += duration.sec();
+	struct set {
+		sigset_t news;
+		sigset_t olds;
+	} set;
+	sigfillset(&set.news);
+	sigdelset(&set.news, SIGINT); // allow Ctrl-C
+	pthread_sigmask(SIG_SETMASK, &set.news, &set.olds);
 	int rc = pthread_cond_timedwait(&base::restart.condition, &this->guard.mutex, &abstime);
+	pthread_sigmask(SIG_SETMASK, &set.olds, 0);
 	if (rc == ETIMEDOUT)
 		throw timeout();
 }
