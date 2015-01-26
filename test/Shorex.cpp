@@ -84,7 +84,7 @@ public:
 		}
 		for (size_t i=0; i<4; ++i)
 		{
-			sleep(Duration(0.05)); // simlate reading, gives other threads a chance to run
+			sleep(Duration(0.1)); // simlate reading, gives other threads a chance to run
 			{
 				Acquirer protect(counters);
 				EXPECT_GT(readers, 0);
@@ -107,7 +107,7 @@ public:
 		}
 		for (size_t i=0; i<2; ++i)
 		{
-			sleep(Duration(0.05)); // simlate writing, gives other threads a chance to run
+			sleep(Duration(0.1)); // simlate writing, gives other threads a chance to run
 			{
 				Acquirer protect(counters);
 				EXPECT_EQ(readers, 0);

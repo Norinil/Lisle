@@ -154,6 +154,7 @@ TEST (EventTest, multiwait_broadcast)
 	{
 		Thread* thread = dynamic_cast<Thread*>((Strand*)pool[i]);
 		EXPECT_FALSE(thread->done);
+		sleep(Duration(0.01)); // give the spawned thread a chance to wait on the event
 	}
 	event.broadcast();
 	for (size_t i=0; i<pool.size(); ++i)
