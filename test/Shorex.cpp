@@ -24,12 +24,14 @@
 #include <lisle/Shorex>
 #include <lisle/create>
 #include <lisle/Acquirer>
+#include <iostream>
 
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 #undef max
 #endif
 
 using namespace lisle;
+using namespace std;
 
 TEST (ShorexTest, construct)
 {
@@ -84,6 +86,8 @@ public:
 		}
 		for (size_t i=0; i<4; ++i)
 		{
+			cout << ".";
+			cout.flush();
 			sleep(Duration(0.1)); // simlate reading, gives other threads a chance to run
 			{
 				Acquirer protect(counters);
@@ -107,6 +111,8 @@ public:
 		}
 		for (size_t i=0; i<2; ++i)
 		{
+			cout << "-";
+			cout.flush();
 			sleep(Duration(0.1)); // simlate writing, gives other threads a chance to run
 			{
 				Acquirer protect(counters);
@@ -167,4 +173,5 @@ TEST (ShorexTest, protectIODevice)
 	EXPECT_EQ(device->writers, 0);
 	EXPECT_EQ(device->max.writers, 1);
 	EXPECT_GT(device->max.readers, 1);
+	cout << endl;
 }
