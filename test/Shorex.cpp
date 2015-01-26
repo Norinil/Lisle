@@ -88,7 +88,7 @@ public:
 		{
 			cout << ".";
 			cout.flush();
-			sleep(Duration(0.1)); // simlate reading, gives other threads a chance to run
+			sleep(Duration(0.05)); // simlate reading, gives other threads a chance to run
 			{
 				Acquirer protect(counters);
 				EXPECT_GT(readers, 0);
@@ -113,7 +113,7 @@ public:
 		{
 			cout << "-";
 			cout.flush();
-			sleep(Duration(0.1)); // simlate writing, gives other threads a chance to run
+			sleep(Duration(0.05)); // simlate writing, gives other threads a chance to run
 			{
 				Acquirer protect(counters);
 				EXPECT_EQ(readers, 0);
@@ -145,6 +145,7 @@ void spawnerreadwrite (Handle<Device> device)
 	Thrid tid[2];
 	tid[0] = create(Thread(workerreadwrite, device));
 	tid[1] = create(Thread(workerwriteread, device));
+	yield();
 	tid[0].join();
 	tid[1].join();
 }
@@ -153,6 +154,7 @@ void spawnerwriteread (Handle<Device> device)
 	Thrid tid[2];
 	tid[0] = create(Thread(workerwriteread, device));
 	tid[1] = create(Thread(workerreadwrite, device));
+	yield();
 	tid[0].join();
 	tid[1].join();
 }
@@ -165,6 +167,7 @@ TEST (ShorexTest, protectIODevice)
 	tid[1] = create(Thread(shorex::spawnerwriteread, device));
 	tid[2] = create(Thread(shorex::workerwriteread, device));
 	tid[3] = create(Thread(shorex::spawnerreadwrite, device));
+	yield();
 	tid[0].join();
 	tid[1].join();
 	tid[2].join();
