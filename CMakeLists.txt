@@ -23,7 +23,7 @@ else ()
 endif ()
 set(LISLE_VERSION_MAJOR 5)
 set(LISLE_VERSION_MINOR 0)
-set(LISLE_VERSION_PATCH 1)
+set(LISLE_VERSION_PATCH 2)
 cmake_minimum_required(VERSION 2.8)
 enable_testing()
 
