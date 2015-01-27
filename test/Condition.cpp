@@ -171,7 +171,10 @@ TEST (ConditionTest, multiwait_broadcast)
 	};
 	vector<Strid> pool;
 	for (size_t i=0; i<5; ++i)
+	{
 		pool.push_back(Strid(new Thread(guard, cond)));
+		yield();
+	}
 	for (size_t i=0; i<pool.size(); ++i)
 	{
 		Thread* thread = dynamic_cast<Thread*>((Strand*)pool[i]);
