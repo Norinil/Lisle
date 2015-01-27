@@ -38,6 +38,8 @@ class Barrier
 public:
 	EXI ~Barrier () throw (permission);
 	EXI Barrier (size_t clients) throw (resource);
+	EXI size_t height () const;
+	EXI size_t size () const;
 	EXI void wait () throw ();
 private:
 	struct data

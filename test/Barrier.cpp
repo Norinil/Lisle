@@ -32,6 +32,13 @@ using namespace std;
 #pragma warning (disable:4512)
 #endif
 
+TEST (BarrierTest, height_size)
+{
+	Barrier barrier(27);
+	EXPECT_EQ(barrier.height(), 27);
+	EXPECT_EQ(barrier.size(), 27);
+}
+
 TEST (BarrierTest, sync3workers)
 {
 	Barrier barrier(3);

@@ -82,4 +82,14 @@ throw ()
 	}
 }
 
+size_t Barrier::height () const
+{
+	return barrier.height;
+}
+
+size_t Barrier::size () const
+{
+	return barrier.height;
+}
+
 }
