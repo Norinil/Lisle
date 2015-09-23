@@ -1,0 +1,27 @@
+Lisle C++ library
+=================
+
+Multi threading in C++
+
+Description
+-----------
+A cross-platform C++ library for multi-threading.
+Provides thread management features:
+- creation
+- suspension
+- cancellation
+- termination
+Provides thread synchronization devices:
+- mutex, retex (recursive mutex)
+- acquirer, releaser
+- semaphore
+- condition
+- event
+- shorex (shared or exclusive lock)
+- barrier
+Supported platforms:
+- posix (linux)
+- windows
+Supported compilers:
+- gcc
+- visual studio
