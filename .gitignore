@@ -3,6 +3,6 @@
 CMakeLists.txt.user
 lisle.kdev4
 .kdev4/
-build/
+build*/
 build.bcb/
 install/
