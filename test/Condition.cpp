@@ -24,6 +24,7 @@
 #include <lisle/Condition>
 #include <lisle/Acquirer>
 #include <lisle/Strid>
+#include <lisle/Countic>
 #include <vector>
 
 using namespace lisle;
@@ -152,35 +153,44 @@ TEST (ConditionTest, timedwait_timeout)
 /// Test that broadcasting a condition that multiple threads wait on restarts all threads
 TEST (ConditionTest, multiwait_broadcast)
 {
+	const size_t maxthreads = 5; // how many threads will start
 	Mutex guard;
 	Condition cond(guard);
+	Countic waiters; // count waiting threads
 	class Thread : public Strand
 	{
 	public:
 		bool done;
-		Thread (Mutex& guard, Condition& cond) : done(false), guard(guard), cond(cond) {}
+		Thread (Mutex& guard, Condition& cond, Countic& waiters) : done(false), guard(guard), cond(cond), waiters(waiters) {}
 	private:
 		Mutex& guard;
 		Condition& cond;
+		Countic& waiters;
 		void main ()
 		{
 			Acquirer lock(guard);
+			waiters.inc();
 			cond.wait();
+			waiters.dec();
 			done = true;
 		}
 	};
 	vector<Strid> pool;
-	for (size_t i=0; i<5; ++i)
+	for (size_t i=0; i<maxthreads; ++i)
 	{
-		pool.push_back(Strid(new Thread(guard, cond)));
+		pool.push_back(Strid(new Thread(guard, cond, waiters)));
 		yield();
 	}
+	while (waiters < maxthreads)
+		yield();
 	for (size_t i=0; i<pool.size(); ++i)
 	{
 		Thread* thread = dynamic_cast<Thread*>((Strand*)pool[i]);
 		EXPECT_FALSE(thread->done);
 	}
 	cond.broadcast();
+	while (waiters > 0)
+		yield();
 	for (size_t i=0; i<pool.size(); ++i)
 	{
 		lisle::Exit exit = pool[i].join();
