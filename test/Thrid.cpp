@@ -55,6 +55,7 @@ TEST (ThridTest, retval)
 	Exit exit;
 	Handle<string> retval;
 	ASSERT_NO_THROW(thread = create(Thread(&returner)));
+	yield();
 	ASSERT_NO_THROW(exit = thread.join(retval));
 	EXPECT_EQ(terminated, exit);
 	EXPECT_EQ(string("greetings from returner"), *retval);
