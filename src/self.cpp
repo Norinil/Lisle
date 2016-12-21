@@ -25,8 +25,8 @@
 #include <lisle/Acquirer>
 #include <lisle/Releaser>
 #include <lisle/self>
-#include <lisle/thrargs>
 #include <new>
+#include "thrargs.h"
 
 using namespace std;
 

@@ -26,12 +26,12 @@
 */
 #include <lisle/create>
 #include <lisle/self>
-#include <lisle/thrargs>
 #include <lisle/Acquirer>
 #include <cerrno>
 #include <cstdio>
 #include <new>
 #include "../../src/assert.h"
+#include "../../src/thrargs.h"
 
 static int convert (const lisle::Schedule::Priority& priority, int policy)
 {

@@ -8,7 +8,6 @@ include_directories(${PROJECT_BINARY_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/port/${BUILD_SYS})
 include_directories(${PROJECT_SOURCE_DIR}/port/${OPERATING_SYS})
 include_directories(${PROJECT_SOURCE_DIR}/port/${THREAD_SYS})
-include_directories(${PROJECT_SOURCE_DIR}/port)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 set(LIB_SRCS
