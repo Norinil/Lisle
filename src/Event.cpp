@@ -22,8 +22,8 @@
 */
 #include <lisle/Event>
 #include <lisle/Acquirer>
-#include <lisle/assert>
 #include <lisle/self>
+#include "assert.h"
 #include "prioqueue.h"
 
 #ifdef _MSC_VER

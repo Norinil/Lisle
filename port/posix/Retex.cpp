@@ -21,8 +21,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 #include <lisle/Retex>
-#include <lisle/assert>
 #include <cerrno>
+#include "../../src/assert.h"
 
 namespace lisle {
 

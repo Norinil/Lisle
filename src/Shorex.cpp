@@ -22,12 +22,12 @@
 */
 #include <lisle/Shorex>
 #include <lisle/exceptions>
-#include <lisle/assert>
 #include <lisle/Acquirer>
 #include <lisle/Releaser>
 #include <lisle/list>
 #include <lisle/self>
 #include <new>
+#include "assert.h"
 #include "prioqueue.h"
 
 #ifdef _MSC_VER

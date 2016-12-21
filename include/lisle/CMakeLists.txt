@@ -1,6 +1,5 @@
 install(FILES Acquirer DESTINATION include/lisle)
 install(FILES Anondle DESTINATION include/lisle)
-install(FILES assert DESTINATION include/lisle)
 install(FILES Barrier DESTINATION include/lisle)
 install(FILES Condition DESTINATION include/lisle)
 install(FILES Countic DESTINATION include/lisle)
