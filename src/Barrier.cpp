@@ -27,7 +27,7 @@
 #include <lisle/self>
 
 #ifdef _MSC_VER
-#pragma warning (disable:4290)
+#pragma warning (disable : 4290 4459)
 #endif
 
 namespace lisle {

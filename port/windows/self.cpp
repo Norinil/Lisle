@@ -25,6 +25,10 @@
 #include <lisle/Releaser>
 #include <cstdio>
 
+#ifdef _MSC_VER
+#pragma warning (disable : 4459)
+#endif
+
 namespace lisle {
 
 // The global thread self variable

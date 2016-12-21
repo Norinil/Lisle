@@ -28,6 +28,10 @@
 #include <lisle/thrargs>
 #include <new>
 
+#ifdef _MSC_VER
+#pragma warning (disable : 4459)
+#endif
+
 using namespace std;
 
 namespace lisle {

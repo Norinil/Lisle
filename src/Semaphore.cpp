@@ -28,7 +28,7 @@
 #include <limits>
 
 #ifdef _MSC_VER
-#pragma warning (disable:4290)
+#pragma warning (disable : 4290 4459)
 #undef max
 #endif
 

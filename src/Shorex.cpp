@@ -31,8 +31,7 @@
 #include <new>
 
 #ifdef _MSC_VER
-#pragma warning (disable:4290)
-#pragma warning (disable:4715)
+#pragma warning (disable : 4290 4715 4458 4459)
 #endif
 
 namespace lisle {
