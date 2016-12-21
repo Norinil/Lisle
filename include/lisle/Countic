@@ -32,17 +32,18 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 #pragma once
+#include <lisle/EXI>
 
 namespace lisle {
 class Countic
 {
 public:
-	Countic (long val = 0) : val(val) {}
-	operator long () const { return val; }
-	void inc ();
-	void dec ();
-	bool inctz ();
-	bool dectz ();
+	EXI Countic (long val = 0) : val(val) {}
+	EXI operator long () const { return val; }
+	EXI void inc ();
+	EXI void dec ();
+	EXI bool inctz ();
+	EXI bool dectz ();
 private:
 	volatile long val;
 	Countic (const Countic&);
