@@ -21,7 +21,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 #include "test.h"
-#include <lisle/prioqueue>
+#include "../src/prioqueue.h"
 
 using namespace lisle;
 

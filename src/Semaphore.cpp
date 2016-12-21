@@ -23,9 +23,9 @@
 #include <lisle/Semaphore>
 #include <lisle/Acquirer>
 #include <lisle/assert>
-#include <lisle/prioqueue>
 #include <lisle/self>
 #include <limits>
+#include "prioqueue.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable:4290)

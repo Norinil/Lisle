@@ -23,8 +23,8 @@
 #include <lisle/Event>
 #include <lisle/Acquirer>
 #include <lisle/assert>
-#include <lisle/prioqueue>
 #include <lisle/self>
+#include "prioqueue.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable:4290)
