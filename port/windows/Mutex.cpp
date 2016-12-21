@@ -1,7 +1,7 @@
 /* -*- mode:C++ -*-
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012, Markus Schütz
+// Copyright (C) 2012, Markus SchÃ¼tz
 //
 // This library is free software. You can redistribute  and/or  modify it under
 // the terms of the GNU Lesser General Public License  as published by the Free
@@ -25,9 +25,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 #include <lisle/Mutex>
-#include <lisle/assert>
 #include <limits.h>
 #include <intrin.h>
+#include "../../src/assert.h"
 
 #pragma intrinsic (_InterlockedIncrement)
 #pragma intrinsic (_InterlockedDecrement)

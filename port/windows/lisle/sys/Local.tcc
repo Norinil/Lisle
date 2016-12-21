@@ -1,7 +1,7 @@
 /* -*- mode:C++ -*-
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2002-2012, Markus Schütz
+// Copyright (C) 2002-2012, Markus SchÃ¼tz
 //
 // This library is free software. You can redistribute  and/or  modify it under
 // the terms of the GNU Lesser General Public License  as published by the Free
@@ -24,7 +24,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 */
-#include <lisle/assert>
 
 namespace lisle {
 
@@ -41,7 +40,7 @@ template <typename T> inline Local<T>::Local ()
 throw (resource)
 {
 	key = TlsAlloc();
-	assert(key != TLS_OUT_OF_INDEXES, resource());
+	if (key == TLS_OUT_OF_INDEXES) throw resource();
 	TlsSetValue(key, NULL);
 }
 
