@@ -24,10 +24,10 @@
 #include <lisle/exceptions>
 #include <lisle/Acquirer>
 #include <lisle/Releaser>
-#include <lisle/list>
 #include <lisle/self>
 #include <new>
 #include "assert.h"
+#include "list.h"
 #include "prioqueue.h"
 
 #ifdef _MSC_VER
