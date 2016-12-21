@@ -12,7 +12,6 @@ include_directories(${PROJECT_SOURCE_DIR}/port)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 set(LIB_SRCS
-	lisle.cpp
 	Anondle.cpp
 	Barrier.cpp
 	Condition.cpp
