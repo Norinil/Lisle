@@ -43,7 +43,7 @@ public:
 	EXI bool trylock () throw ();
 	EXI void lock () throw ();
 	EXI void unlock () throw (permission);
-	EXI bool tryacquire () throw () { trylock(); }
+	EXI bool tryacquire () throw () { return trylock(); }
 	EXI void acquire () throw () { lock(); }
 	EXI void release () throw (permission) { unlock(); }
 private:
