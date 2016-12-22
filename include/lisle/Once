@@ -22,15 +22,14 @@
 */
 #pragma once
 #include <lisle/sys/Once>
-#include <lisle/EXI>
 
 namespace lisle {
 class Once
 {
 public:
 	virtual ~Once () {}
-	EXI Once (void(* once)());
-	EXI void run ();
+	Once (void(* once)());
+	void run ();
 private:
 	sys::Once control;
 	void(* once)();

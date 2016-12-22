@@ -25,7 +25,6 @@
 #include <lisle/Handle>
 #include <lisle/exceptions>
 #include <lisle/self>
-#include <lisle/EXI>
 #include <cstdint>
 
 #ifdef _MSC_VER
@@ -33,7 +32,7 @@
 #endif
 
 namespace lisle { class Thrid; }
-namespace lisle { EXI Thrid create (const Thread&, const Schedule&) throw (resource, permission, virthread); }
+namespace lisle { Thrid create (const Thread&, const Schedule&) throw (resource, permission, virthread); }
 
 namespace lisle {
 enum Exit { terminated, canceled, exceptioned };
@@ -41,15 +40,15 @@ class Thrid
 {
 public:
 	~Thrid () {}
-	EXI Thrid ();
+	Thrid ();
 	Thrid (const Thrid& that) : thr(that.thr) {}
 	Thrid& operator = (const Thrid& that) { this->thr = that.thr; return *this; }
 	operator uint32_t () const { return thr->id(); }
 	bool operator == (const Thrid& that) const { return this->thr->equal(that.thr); }
 	bool operator != (const Thrid& that) const { return !this->thr->equal(that.thr); }
-	EXI void detach () throw (lisle::detach);
-	EXI void cancel () throw ();
-	EXI void resume () throw ();
+	void detach () throw (lisle::detach);
+	void cancel () throw ();
+	void resume () throw ();
 	Exit join () throw (lisle::join, lisle::deadlock, lisle::thrcancel)
 	{
 		return ijoin();
@@ -64,8 +63,8 @@ public:
 private:
 	threadle thr;
 	Thrid (const threadle& thr); // Used by Thread::create()
-	EXI Exit ijoin () throw (lisle::join, lisle::deadlock, lisle::thrcancel);
-	friend EXI Thrid lisle::create (const Thread&, const Schedule&) throw (resource, permission, virthread);
+	Exit ijoin () throw (lisle::join, lisle::deadlock, lisle::thrcancel);
+	friend Thrid lisle::create (const Thread&, const Schedule&) throw (resource, permission, virthread);
 };
 }
 

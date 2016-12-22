@@ -23,7 +23,6 @@
 #pragma once
 #include <lisle/Mutex>
 #include <lisle/exceptions>
-#include <lisle/EXI>
 #include <cstdint>
 
 #ifdef _MSC_VER
@@ -36,11 +35,11 @@ namespace lisle {
 class Barrier
 {
 public:
-	EXI ~Barrier () throw (permission);
-	EXI Barrier (size_t clients) throw (resource);
-	EXI size_t height () const;
-	EXI size_t size () const;
-	EXI void wait () throw ();
+	~Barrier () throw (permission);
+	Barrier (size_t clients) throw (resource);
+	size_t height () const;
+	size_t size () const;
+	void wait () throw ();
 private:
 	struct data
 	{

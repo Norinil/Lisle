@@ -69,7 +69,7 @@ TEST (selfTest, terminateTerminateNull)
 /// Ensure uncaught exceptions can be handled in a terminate handler.
 static int count_terminate = 0;
 static std::terminate_handler handle_terminate = 0;
-void terminate ()
+static void terminate ()
 {
 	count_terminate++;
 	if (handle_terminate)

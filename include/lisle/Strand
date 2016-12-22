@@ -30,7 +30,6 @@
 #pragma once
 #include <lisle/Thread>
 #include <lisle/Thrid>
-#include <lisle/EXI>
 #include <cstdint>
 
 #ifdef _MSC_VER

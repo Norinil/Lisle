@@ -23,7 +23,6 @@
 #pragma once
 #include <lisle/sys/Mutex>
 #include <lisle/exceptions>
-#include <lisle/EXI>
 
 #ifdef _MSC_VER
 #pragma warning (push,2)
@@ -34,11 +33,11 @@ class Mutex
 {
 	friend struct thread;
 public:
-	EXI ~Mutex () throw (permission);
-	EXI Mutex () throw (resource);
-	EXI bool trylock () throw ();
-	EXI void lock () throw (deadlock);
-	EXI void unlock () throw (permission);
+	~Mutex () throw (permission);
+	Mutex () throw (resource);
+	bool trylock () throw ();
+	void lock () throw (deadlock);
+	void unlock () throw (permission);
 	bool tryacquire () throw () { return trylock(); }
 	void acquire () throw (deadlock) { lock(); }
 	void release () throw (permission) { unlock(); }

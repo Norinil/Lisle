@@ -22,7 +22,6 @@
 */
 #pragma once
 #include <lisle/self>
-#include <lisle/EXI>
 
 namespace lisle {
 class prioqueue
@@ -31,9 +30,9 @@ public:
 	prioqueue (thread** top) : queue(top) {}
 	bool empty () const { return *queue == 0; }
 	thread* top () const { return *queue; }
-	EXI void push (thread* item);
-	EXI void pop ();
-	EXI bool remove (thread* item);
+	void push (thread* item);
+	void pop ();
+	bool remove (thread* item);
 private:
 	thread** queue;
 	prioqueue (const prioqueue&);

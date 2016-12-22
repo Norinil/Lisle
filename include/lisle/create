@@ -30,7 +30,7 @@
 #endif
 
 namespace lisle {
-EXI Thrid create (const Thread& start, const Schedule& schedule = Schedule()) throw (resource, permission, virthread);
+Thrid create (const Thread& start, const Schedule& schedule = Schedule()) throw (resource, permission, virthread);
 }
 
 #ifdef _MSC_VER

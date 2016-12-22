@@ -23,7 +23,6 @@
 #pragma once
 #include <lisle/Mutex>
 #include <lisle/exceptions>
-#include <lisle/EXI>
 #include <cstdint>
 
 #ifdef _MSC_VER
@@ -37,13 +36,13 @@ namespace lisle {
 class Semaphore
 {
 public:
-	EXI ~Semaphore () throw (permission);
-	EXI Semaphore (size_t value = 0) throw (resource);
-	EXI static size_t max () throw ();
-	EXI size_t value () const throw ();
-	EXI bool trywait () throw ();
-	EXI void wait () throw (thrcancel);
-	EXI void post () throw (overflow);
+	~Semaphore () throw (permission);
+	Semaphore (size_t value = 0) throw (resource);
+	static size_t max () throw ();
+	size_t value () const throw ();
+	bool trywait () throw ();
+	void wait () throw (thrcancel);
+	void post () throw (overflow);
 private:
 	struct data
 	{

@@ -30,7 +30,6 @@
 #include <lisle/Mutex>
 #include <lisle/Duration>
 #include <lisle/exceptions>
-#include <lisle/EXI>
 
 #ifdef _MSC_VER
 #pragma warning (push,2)
@@ -42,12 +41,12 @@ namespace lisle {
 class Condition
 {
 public:
-	EXI ~Condition () throw (permission);
-	EXI Condition (Mutex& mutex) throw (resource);
-	EXI void signal () throw ();
-	EXI void broadcast () throw ();
-	EXI void wait () throw (permission, thrcancel);
-	EXI void wait (const Duration& duration) throw (permission, timeout, thrcancel);
+	~Condition () throw (permission);
+	Condition (Mutex& mutex) throw (resource);
+	void signal () throw ();
+	void broadcast () throw ();
+	void wait () throw (permission, thrcancel);
+	void wait (const Duration& duration) throw (permission, timeout, thrcancel);
 	void notify () throw () { this->signal(); }
 private:
 	struct data

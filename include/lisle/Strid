@@ -23,7 +23,6 @@
 #pragma once
 #include <lisle/Strand>
 #include <lisle/Handle>
-#include <lisle/EXI>
 
 #ifdef _MSC_VER
 #pragma warning (push,2)
@@ -34,9 +33,9 @@ class Strid : private Handle<Strand>
 {
 public:
 	~Strid () {}
-	EXI Strid (Strand* strand) throw (resource, permission);
-	EXI Strid (const Strid& that);
-	EXI Strid& operator = (const Strid& that);
+	Strid (Strand* strand) throw (resource, permission);
+	Strid (const Strid& that);
+	Strid& operator = (const Strid& that);
 	operator uint32_t () const { return tid; }
 	operator Strand* () const { return Handle<Strand>::operator Strand* (); }
 	void detach () throw (lisle::detach) { tid.detach(); }

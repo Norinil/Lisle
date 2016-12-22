@@ -30,6 +30,9 @@ Anondle::~Anondle ()
 		(*data.unlink)(data.handle);
 }
 
+Anondle::Anondle ()
+{}
+
 Anondle::Anondle (const Anondle& that)
 : data(0, that.data.link, that.data.unlink)
 {

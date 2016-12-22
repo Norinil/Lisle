@@ -1,7 +1,7 @@
 /* -*- mode:C++ -*-
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2003-2012, Markus Schütz
+// Copyright (C) 2003-2012, Markus SchÃ¼tz
 //
 // This library is free software. You can redistribute  and/or  modify it under
 // the terms of the GNU Lesser General Public License  as published by the Free
@@ -46,12 +46,12 @@ uint32_t Thread::id () const
 
 bool Thread::equal (const Thread& that) const
 {
-	return this->id() == that.id();
+	return this->nid == that.nid;
 }
 
 bool Thread::equal (const Thread* that) const
 {
-	return this->id() == that->id();
+	return this->nid == that->nid;
 }
 
 }

@@ -27,7 +27,6 @@
 #pragma once
 #include <windows.h>
 #include <lisle/Mutex>
-#include <lisle/EXI>
 #include <cstdint>
 
 namespace lisle {
@@ -41,11 +40,11 @@ struct Thread
 		HANDLE event;
 	} restart;
 	lisle::Mutex guard;
-	EXI ~Thread ();
-	EXI Thread ();
-	EXI uint32_t id () const;
-	EXI bool equal (const Thread& thread) const;
-	EXI bool equal (const Thread* thread) const;
+	~Thread ();
+	Thread ();
+	uint32_t id () const;
+	bool equal (const Thread& thread) const;
+	bool equal (const Thread* thread) const;
 };
 }
 }

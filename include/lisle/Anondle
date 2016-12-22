@@ -32,16 +32,15 @@
 */
 #pragma once
 #include <lisle/Handle>
-#include <lisle/EXI>
 
 namespace lisle {
 class Anondle
 {
 public:
-	EXI ~Anondle ();
-	EXI Anondle () {}
-	EXI Anondle (const Anondle& that);
-	EXI Anondle& operator = (const Anondle& that);
+	~Anondle ();
+	Anondle ();
+	Anondle (const Anondle& that);
+	Anondle& operator = (const Anondle& that);
 	template <typename T> Anondle (const Handle<T>& handle) : data(new Handle<T>(handle), link<T>, unlink<T>) {}
 	template <typename T> Handle<T>* handle () const { return (Handle<T>*)data.handle; }
 private:

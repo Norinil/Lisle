@@ -21,7 +21,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 #pragma once
-#include <lisle/EXI>
 #include <cstdint>
 
 namespace lisle {
@@ -32,18 +31,18 @@ public:
 	Duration () {}
 	Duration (const Duration& that) : data(that.data) {}
 	Duration& operator = (const Duration& that) { this->data = that.data; return *this; }
-	EXI Duration (double seconds);
+	Duration (double seconds);
 	int64_t sec () const { return data.sec; }
 	uint32_t nsec () const { return data.nsec; }
-	EXI Duration operator - () const;
-	EXI bool operator == (const Duration& that) const;
-	EXI bool operator != (const Duration& that) const;
-	EXI bool operator < (const Duration& that) const;
-	EXI bool operator > (const Duration& that) const;
+	Duration operator - () const;
+	bool operator == (const Duration& that) const;
+	bool operator != (const Duration& that) const;
+	bool operator < (const Duration& that) const;
+	bool operator > (const Duration& that) const;
 	bool operator <= (const Duration& that) const { return !(*this > that); }
 	bool operator >= (const Duration& that) const { return !(*this < that); }
-	EXI Duration& operator += (const Duration& that);
-	EXI Duration& operator -= (const Duration& that);
+	Duration& operator += (const Duration& that);
+	Duration& operator -= (const Duration& that);
 private:
 	struct Data
 	{
@@ -55,5 +54,5 @@ private:
 };
 }
 
-EXI lisle::Duration operator + (const lisle::Duration& lho, const lisle::Duration& rho);
-EXI lisle::Duration operator - (const lisle::Duration& lho, const lisle::Duration& rho);
+lisle::Duration operator + (const lisle::Duration& lho, const lisle::Duration& rho);
+lisle::Duration operator - (const lisle::Duration& lho, const lisle::Duration& rho);

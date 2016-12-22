@@ -1,26 +1,12 @@
 ################################################################################
 # CMake build script for Lisle.
 #
-
-# BUILD_SHARED_LIBS is a standard CMake variable, but we declare it here to
-# make it prominent in the GUI.
-option(BUILD_SHARED_LIBS "Build shared library (DLL)." OFF)
-
-# When other libraries are using a shared version of runtime libraries,
-# Lisle also has to use one.
-option(LISLE_FORCE_SHARED_CRT "Use shared (DLL) run-time lib even when Lisle is built as static lib." OFF)
-
 option(LISLE_BUILD_TESTS "Build all of lisle's own tests." OFF)
 
 ################################################################################
 #
 # Project-wide settings
-
-if (BUILD_SHARED_LIBS)
-	project(Lisle-Shared)
-else ()
-	project(Lisle-Static)
-endif ()
+project(Lisle)
 set(LISLE_VERSION_MAJOR 5)
 set(LISLE_VERSION_MINOR 0)
 set(LISLE_VERSION_PATCH 2)

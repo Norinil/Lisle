@@ -29,7 +29,6 @@
 #include <lisle/Mutex>
 #include <lisle/Duration>
 #include <lisle/exceptions>
-#include <lisle/EXI>
 
 #ifdef _MSC_VER
 #pragma warning (push,2)
@@ -41,12 +40,12 @@ namespace lisle {
 class Event
 {
 public:
-	EXI ~Event () throw (permission);
-	EXI Event () throw (resource);
-	EXI void signal () throw ();
-	EXI void broadcast () throw ();
-	EXI void wait () throw (thrcancel);
-	EXI void wait (const Duration& duration) throw (timeout, thrcancel);
+	~Event () throw (permission);
+	Event () throw (resource);
+	void signal () throw ();
+	void broadcast () throw ();
+	void wait () throw (thrcancel);
+	void wait (const Duration& duration) throw (timeout, thrcancel);
 	void notify () throw () { this->signal(); }
 private:
 	struct data

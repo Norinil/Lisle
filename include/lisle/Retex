@@ -28,7 +28,6 @@
 #pragma once
 #include <lisle/sys/Mutex>
 #include <lisle/exceptions>
-#include <lisle/EXI>
 
 #ifdef _MSC_VER
 #pragma warning (push,2)
@@ -38,14 +37,14 @@ namespace lisle {
 class Retex
 {
 public:
-	EXI ~Retex () throw (permission);
-	EXI Retex () throw (resource);
-	EXI bool trylock () throw ();
-	EXI void lock () throw ();
-	EXI void unlock () throw (permission);
-	EXI bool tryacquire () throw () { return trylock(); }
-	EXI void acquire () throw () { lock(); }
-	EXI void release () throw (permission) { unlock(); }
+	~Retex () throw (permission);
+	Retex () throw (resource);
+	bool trylock () throw ();
+	void lock () throw ();
+	void unlock () throw (permission);
+	bool tryacquire () throw () { return trylock(); }
+	void acquire () throw () { lock(); }
+	void release () throw (permission) { unlock(); }
 private:
 	sys::Mutex mutex;
 	Retex (const Retex&);

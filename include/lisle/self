@@ -30,7 +30,6 @@
 #include <lisle/Duration>
 #include <lisle/Handle>
 #include <lisle/Anondle>
-#include <lisle/EXI>
 #include <lisle/sys/Local>
 #include <lisle/sys/Thread>
 #include <exception>
@@ -40,14 +39,14 @@ namespace lisle { void exit (const lisle::Anondle& hretd); }
 /// Functions that can be called in the running thread.
 namespace lisle {
 struct cancel { enum State { disable, enable }; };
-EXI void suspend ();
-EXI void yield ();
-EXI void sleep (const Duration& duration);
-EXI void exit ();
-template <typename TRT> EXI void exit (const Handle<TRT>& hretd) { lisle::exit(hretd); }
-EXI void set (const cancel::State& cancelability);
-EXI void get (cancel::State& cancelability);
-EXI void testcancel ();
+void suspend ();
+void yield ();
+void sleep (const Duration& duration);
+void exit ();
+template <typename TRT> void exit (const Handle<TRT>& hretd) { lisle::exit(hretd); }
+void set (const cancel::State& cancelability);
+void get (cancel::State& cancelability);
+void testcancel ();
 }
 
 /// Lisle internal thread structure.
