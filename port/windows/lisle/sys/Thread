@@ -1,7 +1,7 @@
 /* -*- mode:C++ -*-
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2003-2012, Markus Schütz
+// Copyright (C) 2003-2012, Markus SchÃ¼tz
 //
 // This library is free software. You can redistribute  and/or  modify it under
 // the terms of the GNU Lesser General Public License  as published by the Free
@@ -27,6 +27,7 @@
 #pragma once
 #include <windows.h>
 #include <lisle/Mutex>
+#include <lisle/EXI>
 #include <cstdint>
 
 namespace lisle {
@@ -40,11 +41,11 @@ struct Thread
 		HANDLE event;
 	} restart;
 	lisle::Mutex guard;
-	~Thread ();
-	Thread ();
-	uint32_t id () const;
-	bool equal (const Thread& thread) const;
-	bool equal (const Thread* thread) const;
+	EXI ~Thread ();
+	EXI Thread ();
+	EXI uint32_t id () const;
+	EXI bool equal (const Thread& thread) const;
+	EXI bool equal (const Thread* thread) const;
 };
 }
 }

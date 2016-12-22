@@ -33,7 +33,7 @@
 #endif
 
 namespace lisle { class Thrid; }
-namespace lisle { Thrid create (const Thread&, const Schedule&) throw (resource, permission, virthread); }
+namespace lisle { EXI Thrid create (const Thread&, const Schedule&) throw (resource, permission, virthread); }
 
 namespace lisle {
 enum Exit { terminated, canceled, exceptioned };

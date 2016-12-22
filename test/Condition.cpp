@@ -91,7 +91,7 @@ TEST (ConditionTest, timedwait_signal)
 			try
 			{
 				Acquirer lock(guard);
-				cond.wait(Duration(0.02));
+				cond.wait(Duration(0.2));
 				done = true;
 			}
 			catch (timeout&)
@@ -104,7 +104,7 @@ TEST (ConditionTest, timedwait_signal)
 	Thread* thread = dynamic_cast<Thread*>((Strand*)handle);
 	EXPECT_FALSE(thread->done);
 	EXPECT_FALSE(thread->timedout);
-	sleep(Duration(0.01));
+	sleep(Duration(0.1));
 	cond.signal();
 	lisle::Exit exit = handle.join();
 	EXPECT_EQ(exit, lisle::terminated);

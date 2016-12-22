@@ -39,7 +39,7 @@ class Semaphore
 public:
 	EXI ~Semaphore () throw (permission);
 	EXI Semaphore (size_t value = 0) throw (resource);
-	static size_t max () throw ();
+	EXI static size_t max () throw ();
 	EXI size_t value () const throw ();
 	EXI bool trywait () throw ();
 	EXI void wait () throw (thrcancel);

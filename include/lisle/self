@@ -44,7 +44,7 @@ EXI void suspend ();
 EXI void yield ();
 EXI void sleep (const Duration& duration);
 EXI void exit ();
-EXI template <typename TRT> void exit (const Handle<TRT>& hretd) { lisle::exit(hretd); }
+template <typename TRT> EXI void exit (const Handle<TRT>& hretd) { lisle::exit(hretd); }
 EXI void set (const cancel::State& cancelability);
 EXI void get (cancel::State& cancelability);
 EXI void testcancel ();
