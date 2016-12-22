@@ -25,8 +25,8 @@
 #include <lisle/Acquirer>
 #include <lisle/Releaser>
 #include <lisle/self>
-#include <lisle/thrargs>
 #include <new>
+#include "thrargs.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4459)

@@ -23,9 +23,9 @@
 #include <lisle/Thrid>
 #include <lisle/Acquirer>
 #include <lisle/Releaser>
-#include <lisle/assert>
-#include <lisle/prioqueue>
 #include <lisle/self>
+#include "assert.h"
+#include "prioqueue.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4290 4459)

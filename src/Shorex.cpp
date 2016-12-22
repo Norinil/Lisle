@@ -22,13 +22,13 @@
 */
 #include <lisle/Shorex>
 #include <lisle/exceptions>
-#include <lisle/assert>
 #include <lisle/Acquirer>
 #include <lisle/Releaser>
-#include <lisle/prioqueue>
-#include <lisle/list>
 #include <lisle/self>
 #include <new>
+#include "assert.h"
+#include "list.h"
+#include "prioqueue.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4290 4715 4458 4459)

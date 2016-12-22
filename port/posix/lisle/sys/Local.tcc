@@ -25,7 +25,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 #include <lisle/exceptions>
-#include <lisle/assert>
 
 namespace lisle {
 namespace sys {
@@ -56,7 +55,7 @@ throw (resource)
 {
 	register int rc;
 	rc = pthread_key_create(&key, &sys::local::clean<T>);
-	assert(rc == 0, resource());
+	if (rc != 0) throw resource();
 }
 
 template <typename T> inline T& Local<T>::operator = (const T& that)

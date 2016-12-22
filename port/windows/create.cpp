@@ -22,14 +22,14 @@
 */
 #include <lisle/create>
 #include <lisle/self>
-#include <lisle/thrargs>
-#include <lisle/assert>
 #include <lisle/Acquirer>
 #include <lisle/Schedule>
 #include <cerrno>
 #include <cstdio>
 #include <process.h>
 #include <new>
+#include "../../src/assert.h"
+#include "../../src/thrargs.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable:4290)
