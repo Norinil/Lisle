@@ -20,12 +20,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 */
-#include <lisle/Thrid>
-#include <lisle/Thread>
-#include <lisle/Acquirer>
-#include <lisle/Releaser>
-#include <lisle/self>
+#include <lisle/thrid.h>
+#include <lisle/thread.h>
+#include <lisle/acquirer.h>
+#include <lisle/releaser.h>
+#include <lisle/self.h>
 #include <new>
+#include "self.h"
 #include "thrargs.h"
 
 #ifdef _MSC_VER
@@ -39,25 +40,25 @@ namespace lisle {
 void suspend ()
 {
 	// Synchronous suspend by calling thread
-	threadle thr(self);
-	Acquirer lock(thr->guard);
-	if ((thr->state < thread::canceling) && (thr->state != thread::suspended))
+	intern::threadle thr(intern::self);
+	acquirer lock(thr->guard);
+	if ((thr->state < intern::thread::canceling) && (thr->state != intern::thread::suspended))
 	{
-		thr->state = thread::suspended;
+		thr->state = intern::thread::suspended;
 		thr->suspend();
-		thr->state = thread::running;
+		thr->state = intern::thread::running;
 	}
 }
 
-void exit (const lisle::Anondle& hretd)
+void exit (const lisle::anondle& hretd)
 {
 	throw lisle::threxit(hretd);
 }
 
 void terminate ()
 {
-	threadle self(lisle::self);
-	self->state = thread::exceptioned;
+	intern::threadle self(intern::self);
+	self->state = intern::thread::exceptioned;
 	lisle::exit();
 }
 
@@ -66,24 +67,24 @@ void unexpected ()
 	lisle::terminate();
 }
 
-void launch (const lisle::Thread& thread)
+void launch (const lisle::thread& thread)
 {
 	// Spawned thread
 	// Not static because of a friend declaration
 	
-	threadle self(lisle::self);
+	intern::threadle self(intern::self);
 	try
 	{
 		switch (thread.mode())
 		{
-			case Thread::Suspended :
+			case thread::suspended :
 			{
 				suspend();
 				testcancel();
 			} // no break: after being suspended a thread can only enter the running state
-			case Thread::Running :
+			case thread::running :
 			{
-				self->state = thread::running;
+				self->state = intern::thread::running;
 				self->hretd = (*thread.call())(thread.main(), thread.args());
 			}
 			default :
@@ -111,13 +112,13 @@ void startup (thrargs* args)
 {
 	// Spawned thread
 	
-	lisle::Thread thread;
+	lisle::thread thread;
 
 	// Do all initializations here. The thread that created us is waiting
 	// for the targs->copied condition to be signaled.
 	args->guard.lock();
-	lisle::self.create(args->handle);
-	threadle self(lisle::self);
+	intern::self.create(args->handle);
+	intern::threadle self(intern::self);
 	thread = args->start;
 	args->copied.signal();
 	args->guard.unlock();
@@ -127,11 +128,11 @@ void startup (thrargs* args)
 
 	switch (thread.state())
 	{
-		case Thread::Joinable :
-			self->detach.state = thread::detach::joinable;
+		case thread::joinable :
+			self->detach.state = intern::thread::detach::joinable;
 			break;
-		case Thread::Detached :
-			self->detach.state = thread::detach::detached;
+		case thread::detached :
+			self->detach.state = intern::thread::detach::detached;
 			break;
 	}
 	set_terminate(lisle::terminate); // invariant for lisle::launch
@@ -140,20 +141,20 @@ void startup (thrargs* args)
 	{
 		launch(thread);
 		self->guard.lock();
-		self->state = thread::terminated;
+		self->state = intern::thread::terminated;
 	}
 	catch (thrcancel&)
 	{
 		self->guard.lock();
-		self->hretd = Anondle();
-		self->state = thread::canceled;
+		self->hretd = anondle();
+		self->state = intern::thread::canceled;
 	}
 	catch (threxit& e)
 	{
 		self->guard.lock();
 		self->hretd = e.hretd;
-		if (self->state != thread::exceptioned) // lisle::terminate can exit the thread but it first sets the thread's state to exceptioned
-			self->state = thread::terminated;
+		if (self->state != intern::thread::exceptioned) // lisle::terminate can exit the thread but it first sets the thread's state to exceptioned
+			self->state = intern::thread::terminated;
 	}
 	catch (...)
 	{
@@ -161,32 +162,32 @@ void startup (thrargs* args)
 		// terminate routine. We get control back within this block.
 		// Cleanup and tell this thread is in exceptioned state.
 		self->guard.lock();
-		self->state = thread::exceptioned;
+		self->state = intern::thread::exceptioned;
 	}
-	if (self->detach.state == thread::detach::joinable)
+	if (self->detach.state == intern::thread::detach::joinable)
 		self->waitjoiner();
 	self->guard.unlock();
-	lisle::self.destroy();
+	intern::self.destroy();
 }
 
 void exit ()
 {
 	// Calling thread
-	exit(Anondle());
+	exit(anondle());
 }
 
 void set (const cancel::State& cancelability)
 {
 	// Calling thread
-	threadle self(lisle::self);
-	Acquirer thread(self->guard);
+	intern::threadle self(intern::self);
+	acquirer thread(self->guard);
 	switch (cancelability)
 	{
 		case cancel::disable :
-			self->cancel.state = thread::cancel::disable;
+			self->cancel.state = intern::thread::cancel::disable;
 			break;
 		case cancel::enable :
-			self->cancel.state = thread::cancel::enable;
+			self->cancel.state = intern::thread::cancel::enable;
 			break;
 	}
 }
@@ -194,14 +195,14 @@ void set (const cancel::State& cancelability)
 void get (cancel::State& cancelability)
 {
 	// Calling thread
-	threadle self(lisle::self);
-	Acquirer thread(self->guard);
+	intern::threadle self(intern::self);
+	acquirer thread(self->guard);
 	switch (self->cancel.state)
 	{
-		case thread::cancel::disable :
+		case intern::thread::cancel::disable :
 			cancelability = cancel::disable;
 			break;
-		case thread::cancel::enable :
+		case intern::thread::cancel::enable :
 			cancelability = cancel::enable;
 			break;
 	}
@@ -210,17 +211,17 @@ void get (cancel::State& cancelability)
 void testcancel ()
 {
 	// Calling thread
-	threadle self(lisle::self);
+	intern::threadle self(intern::self);
 	self->testcancel();
 }
 
-void thread::waitrestartcancel (thread* waiting, lisle::Mutex& device)
+void intern::thread::waitrestartcancel (intern::thread* waiting, mutex& device)
 {
 	// Restartable-cancelable wait
 	
 	this->testcancel();
 	{
-		Acquirer thread(this->guard);
+		acquirer thread(this->guard);
 		if (this->cancel.state == thread::cancel::enable)
 		{
 			this->cancel.waiting.queue = waiting;
@@ -233,30 +234,30 @@ void thread::waitrestartcancel (thread* waiting, lisle::Mutex& device)
 	this->testcancel();
 }
 
-void thread::waitrestartcancel (const Duration& duration, thread* waiting, lisle::Mutex& device)
+void intern::thread::waitrestartcancel (const duration& span, intern::thread* waiting, mutex& device)
 {
 	// Restartable-cancellable timed wait
 	
 	this->testcancel();
 	{
-		Acquirer thread(this->guard);
-		if (duration <= Duration(0))
+		acquirer thread(this->guard);
+		if (span <= duration(0))
 			throw lisle::timeout();
 		if (this->cancel.state == thread::cancel::enable)
 		{
 			this->cancel.waiting.queue = waiting;
 			this->cancel.waiting.guard = &device;
 		}
-		this->waitrestart(duration);   // Expects locked guard
+		this->waitrestart(span);   // Expects locked guard
 		this->cancel.waiting.guard = NULL;
 		this->cancel.waiting.queue = NULL;
 	}
 	this->testcancel();
 }
 
-void thread::testcancel ()
+void intern::thread::testcancel ()
 {
-	Acquirer thread(this->guard);
+	acquirer thread(this->guard);
 	if (this->cancel.pending)
 	{
 		this->state = thread::canceling;
@@ -266,7 +267,7 @@ void thread::testcancel ()
 	}
 }
 
-void thread::waitjoiner ()
+void intern::thread::waitjoiner ()
 {
 	// Wait for a joiner to join us
 	// Warning: this->guard *must* have been locked before calling this function.

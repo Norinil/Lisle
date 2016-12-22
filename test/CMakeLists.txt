@@ -12,28 +12,32 @@ include_directories(${PROJECT_SOURCE_DIR}/port/${OPERATING_SYS})
 include_directories(${PROJECT_SOURCE_DIR}/port/${CPU_ARCH}/${BUILD_SYS})
 
 set(TEST_SRCS
-	Anondle.cpp
-	Barrier.cpp
-	Condition.cpp
-	Duration.cpp
-	Event.cpp
-	Handle.cpp
-	Local.cpp
-	Mutex.cpp
-	Once.cpp
-	Retex.cpp
-	Semaphore.cpp
-	Shorex.cpp
-	Strand.cpp
-	Thread.cpp
-	Thrid.cpp
-	Strid.cpp
+	anondle.cpp
+	barrier.cpp
+	condition.cpp
 	create.cpp
-	exceptions.cpp
+	duration.cpp
+	event.cpp
+	exception.cpp
+	handle.cpp
+	local.cpp
+	mutex.cpp
+	once.cpp
 	prioqueue.cpp
+	retex.cpp
 	self.cpp
+	semaphore.cpp
+	shorex.cpp
+	strand.cpp
+	strid.cpp
+	thread.cpp
+	thrid.cpp
 )
-add_executable(runner runner.cpp ${TEST_SRCS})
+set(TEST_HDRS
+	test.h
+)
+
+add_executable(runner runner.cpp ${TEST_HDRS} ${TEST_SRCS})
 set(TEST_LIBS gtest lisle)
 if (HAVE_CLOCK_GETTIME_IN_RT)
 	set(TEST_LIBS ${TEST_LIBS} rt)

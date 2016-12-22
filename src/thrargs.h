@@ -21,18 +21,18 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 #pragma once
-#include <lisle/Thread>
-#include <lisle/Mutex>
-#include <lisle/Condition>
+#include <lisle/thread.h>
+#include <lisle/mutex.h>
+#include <lisle/condition.h>
 
 namespace lisle {
 struct thrargs
 {
-	Thread start;
-	Mutex guard;
-	Condition copied;
-	threadle handle;
-	thrargs (const threadle& handle) : copied(guard), handle(handle) {}
+	thread start;
+	mutex guard;
+	condition copied;
+	intern::threadle handle;
+	thrargs (const intern::threadle& handle) : copied(guard), handle(handle) {}
 };
 }
 

@@ -22,21 +22,22 @@
 */
 #include "test.h"
 #include "../src/prioqueue.h"
+#include <lisle/intern/threadle.h>
 
 using namespace lisle;
 
 /// Test that prioqueue pushes threads with respect to their priority
-TEST (prioqueueTest, priority)
+TEST (Prioqueue, priority)
 {
-	threadle thr[3];
-	thr[0] = new thread;
-	thr[1] = new thread;
-	thr[2] = new thread;
+	intern::threadle thr[3];
+	thr[0] = new intern::thread;
+	thr[1] = new intern::thread;
+	thr[2] = new intern::thread;
 	thr[0]->priority = 1;
 	thr[1]->priority = 2;
 	thr[2]->priority = 0;
 	
-	thread* waiting = 0;
+	intern::thread* waiting = 0;
 	prioqueue queue(&waiting);
 	queue.push(thr[0]);
 	queue.push(thr[1]);
@@ -58,17 +59,17 @@ TEST (prioqueueTest, priority)
 }
 
 /// Test that prioqueue pushes threads with respect to insertion order
-TEST (prioqueueTest, order)
+TEST (Prioqueue, order)
 {
-	threadle thr[3];
-	thr[0] = new thread;
-	thr[1] = new thread;
-	thr[2] = new thread;
+	intern::threadle thr[3];
+	thr[0] = new intern::thread;
+	thr[1] = new intern::thread;
+	thr[2] = new intern::thread;
 	thr[0]->priority = 0;
 	thr[1]->priority = 0;
 	thr[2]->priority = 0;
 	
-	thread* waiting = 0;
+	intern::thread* waiting = 0;
 	prioqueue queue(&waiting);
 	queue.push(thr[2]);
 	queue.push(thr[0]);
@@ -90,18 +91,18 @@ TEST (prioqueueTest, order)
 }
 
 /// Test that prioqueue pushes threads with respect their priority and insertion order
-TEST (prioqueueTest, mixed)
+TEST (Prioqueue, mixed)
 {
-	threadle thr[9];
-	thr[0] = new thread;
-	thr[1] = new thread;
-	thr[2] = new thread;
-	thr[3] = new thread;
-	thr[4] = new thread;
-	thr[5] = new thread;
-	thr[6] = new thread;
-	thr[7] = new thread;
-	thr[8] = new thread;
+	intern::threadle thr[9];
+	thr[0] = new intern::thread;
+	thr[1] = new intern::thread;
+	thr[2] = new intern::thread;
+	thr[3] = new intern::thread;
+	thr[4] = new intern::thread;
+	thr[5] = new intern::thread;
+	thr[6] = new intern::thread;
+	thr[7] = new intern::thread;
+	thr[8] = new intern::thread;
 	thr[0]->priority = 0;
 	thr[1]->priority = 0;
 	thr[2]->priority = 0;
@@ -112,7 +113,7 @@ TEST (prioqueueTest, mixed)
 	thr[7]->priority = 2;
 	thr[8]->priority = 2;
 	
-	thread* waiting = 0;
+	intern::thread* waiting = 0;
 	prioqueue queue(&waiting);
 	queue.push(thr[4]);
 	queue.push(thr[5]);

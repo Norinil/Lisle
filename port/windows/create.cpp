@@ -20,10 +20,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 */
-#include <lisle/create>
-#include <lisle/self>
-#include <lisle/Acquirer>
-#include <lisle/Schedule>
+#include <lisle/create.h>
+#include <lisle/self.h>
+#include <lisle/acquirer.h>
+#include <lisle/schedule.h>
 #include <cerrno>
 #include <cstdio>
 #include <process.h>
@@ -35,7 +35,7 @@
 #pragma warning (disable:4290)
 #endif
 
-static int setsched (HANDLE thread, const lisle::Schedule& sched)
+static int setsched (HANDLE thread, const lisle::schedule& sched)
 throw (lisle::permission)
 {
 	// Returns thread priority
@@ -55,10 +55,10 @@ throw (lisle::permission)
 	{
 		switch (sched.policy())
 		{
-			case lisle::Schedule::Regular :
+			case lisle::schedule::regular :
 				policy = NORMAL_PRIORITY_CLASS;
 				break;
-			case lisle::Schedule::Realtime :
+			case lisle::schedule::realtime :
 				policy = REALTIME_PRIORITY_CLASS;
 				break;
 			default :
@@ -68,25 +68,25 @@ throw (lisle::permission)
 		}
 		switch (sched.priority())
 		{
-			case lisle::Schedule::Critical :
+			case lisle::schedule::critical :
 				priority = THREAD_PRIORITY_TIME_CRITICAL;
 				break;
-			case lisle::Schedule::Highest :
+			case lisle::schedule::highest :
 				priority = THREAD_PRIORITY_HIGHEST;
 				break;
-			case lisle::Schedule::High :
+			case lisle::schedule::high :
 				priority = THREAD_PRIORITY_ABOVE_NORMAL;
 				break;
-			case lisle::Schedule::Normal :
+			case lisle::schedule::normal :
 				priority = THREAD_PRIORITY_NORMAL;
 				break;
-			case lisle::Schedule::Low :
+			case lisle::schedule::low :
 				priority = THREAD_PRIORITY_BELOW_NORMAL;
 				break;
-			case lisle::Schedule::Lowest :
+			case lisle::schedule::lowest :
 				priority = THREAD_PRIORITY_LOWEST;
 				break;
-			case lisle::Schedule::Lazy :
+			case lisle::schedule::lazy :
 				priority = THREAD_PRIORITY_IDLE;
 				break;
 			default :
@@ -114,7 +114,7 @@ static unsigned __stdcall setup (void* args)
 }
 
 namespace lisle {
-Thrid create (const Thread& start, const Schedule& schedule)
+thrid create (const thread& start, const schedule& sched)
 throw (resource, permission, virthread)
 {
 	// Calling thread
@@ -127,7 +127,7 @@ throw (resource, permission, virthread)
 	using namespace std;
 	try
 	{
-		Thrid result(new thread);
+		thrid result(new intern::thread);
 		thrargs* targs;
 		assert(start.main() != NULL, lisle::virthread());
 		targs = new thrargs(result.thr);
@@ -153,19 +153,19 @@ throw (resource, permission, virthread)
 				break;
 			}
 		}
-		result.thr->state = thread::initial;
+		result.thr->state = intern::thread::initial;
 		switch (start.state())
 		{
-			case Thread::Joinable :
-				result.thr->detach.state = thread::detach::joinable;
+			case thread::joinable :
+				result.thr->detach.state = intern::thread::detach::joinable;
 				break;
-			case Thread::Detached :
-				result.thr->detach.state = thread::detach::detached;
+			case thread::detached :
+				result.thr->detach.state = intern::thread::detach::detached;
 				break;
 		}
 		try
 		{
-			result.thr->priority = setsched(result.thr->handle, schedule);
+			result.thr->priority = setsched(result.thr->handle, sched);
 		}
 		catch (lisle::permission)
 		{
@@ -174,15 +174,15 @@ throw (resource, permission, virthread)
 		}
 		// Never reached if setsched threw Permission
 		{
-			Acquirer lock(targs->guard);
+			acquirer lock(targs->guard);
 			targs->start = start;
 			ResumeThread(result.thr->handle);
 			targs->copied.wait();
 		}
 		delete targs;
-		if (start.mode() == Thread::Suspended)
+		if (start.mode() == thread::suspended)
 		{
-			while (result.thr->state != thread::suspended)
+			while (result.thr->state != intern::thread::suspended)
 				yield();
 		}
 		return result;

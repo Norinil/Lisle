@@ -20,19 +20,21 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 */
-#include <lisle/self>
-#include <lisle/Acquirer>
-#include <lisle/Releaser>
+#include <lisle/self.h>
+#include <lisle/acquirer.h>
+#include <lisle/releaser.h>
 #include <cstdio>
+#include "../../src/self.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4459)
 #endif
 
 namespace lisle {
+namespace intern {
 
 // The global thread self variable
-class Self self;
+Self self;
 
 Self::~Self ()
 {
@@ -86,37 +88,10 @@ void Self::destroy ()
 	delete stored;
 }
 
-void yield ()
-{
-	// Calling thread
-	Sleep(0);
-}
-
-void sleep (const Duration& duration)
-{
-	// Let the calling thread sleep for the given duration.
-	DWORD msecs;
-	uint64_t slices, i;
-	
-	// 0x0020'0000 * 1000 < 0xffff'ffff
-	msecs = ((duration.sec() % 0x00200000) * 1000) + ((duration.nsec() + 500000) / 1000000);
-	slices = (duration.sec() / 0x00200000) + 1;
-	for (i=0; i<slices; ++i)
-	{
-		Sleep(msecs);
-		msecs = 0x00200000 * 1000;
-	}
-}
-
-void thread::yield ()
-{
-	Sleep(0);
-}
-
 void thread::suspend ()
 {
 	// Warning: this->guard *must* have been locked before calling this function.
-	Releaser release(this->guard);
+	releaser release(this->guard);
 	SuspendThread(this->handle);
 }
 
@@ -138,7 +113,7 @@ void thread::waitrestart ()
 
 	DWORD status;
 	{
-		lisle::Releaser release(this->guard);
+		releaser release(this->guard);
 		status = WaitForSingleObject(base::restart.event, INFINITE);
 	}
 	switch (status)
@@ -157,7 +132,7 @@ void thread::waitrestart ()
 	}
 }
 
-void thread::waitrestart (const Duration& duration)
+void thread::waitrestart (const duration& span)
 {
 	// Wait for restart event or timeout
 	// Warning: this->guard *must* have been locked before calling this function.
@@ -168,13 +143,13 @@ void thread::waitrestart (const Duration& duration)
 	bool signaled;
 
 	// 0x0020'0000 * 1000 < 0xffff'ffff
-	msecs = ((duration.sec() % 0x00200000) * 1000) + ((duration.nsec() + 500000) / 1000000);
-	slices = (duration.sec() / 0x00200000) + 1;
+	msecs = ((span.sec() % 0x00200000) * 1000) + ((span.nsec() + 500000) / 1000000);
+	slices = (span.sec() / 0x00200000) + 1;
 	signaled = false;
 	for (i=0; i<slices && !signaled; i++)
 	{
 		{
-			lisle::Releaser release(this->guard);
+			releaser release(this->guard);
 			status = WaitForSingleObject(base::restart.event, msecs);
 		}
 		switch (status)
@@ -200,7 +175,7 @@ void thread::waitrestart (const Duration& duration)
 	}
 }
 
-void thread::waitjoiningcancel (thread* thread)
+void intern::thread::waitjoiningcancel (thread* thread)
 {
 	// Wait for joining thread or cancel
 	// Warning: thread->guard *must* have been locked before calling this function.
@@ -210,12 +185,12 @@ void thread::waitjoiningcancel (thread* thread)
 	this->testcancel();
 	if (thread->state < thread::terminal)
 	{
-		lisle::Acquirer self(this->guard);
+		acquirer self(this->guard);
 		thread->joiner = this;
 		if (this->cancel.state == thread::cancel::enable)
 			this->cancel.joining = thread;
 		{
-			lisle::Releaser release(thread->guard);
+			releaser release(thread->guard);
 			this->waitrestart();
 		}
 		this->cancel.joining = NULL;
@@ -225,6 +200,33 @@ void thread::waitjoiningcancel (thread* thread)
 		thread->restart();
 	this->testcancel();
 	GetExitCodeThread(thread->handle, &tec);
+}
+
+}
+}
+
+namespace lisle {
+
+void yield ()
+{
+	// Calling thread
+	Sleep(0);
+}
+
+void sleep (const duration& span)
+{
+	// Let the calling thread sleep for the given duration.
+	DWORD msecs;
+	uint64_t slices, i;
+
+	// 0x0020'0000 * 1000 < 0xffff'ffff
+	msecs = ((span.sec() % 0x00200000) * 1000) + ((span.nsec() + 500000) / 1000000);
+	slices = (span.sec() / 0x00200000) + 1;
+	for (i=0; i<slices; ++i)
+	{
+		Sleep(msecs);
+		msecs = 0x00200000 * 1000;
+	}
 }
 
 }

@@ -24,16 +24,16 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 */
-#include <lisle/create>
-#include <lisle/self>
-#include <lisle/Acquirer>
+#include <lisle/create.h>
+#include <lisle/self.h>
+#include <lisle/acquirer.h>
 #include <cerrno>
 #include <cstdio>
 #include <new>
 #include "../../src/assert.h"
 #include "../../src/thrargs.h"
 
-static int convert (const lisle::Schedule::Priority& priority, int policy)
+static int convert (const lisle::schedule::Priority& priority, int policy)
 {
 	int result;
 	int min, max;
@@ -41,14 +41,14 @@ static int convert (const lisle::Schedule::Priority& priority, int policy)
 	min = sched_get_priority_min(policy);
 	max = sched_get_priority_max(policy);
 	sysrange = max - min;
-	lislerange = lisle::Schedule::Critical - lisle::Schedule::Lazy;
+	lislerange = lisle::schedule::critical - lisle::schedule::lazy;
 	result = min + (priority * sysrange / lislerange);
 	if (result < min) result = min;
 	if (result > max) result = max;
 	return result;
 }
 
-static void convert (const lisle::Schedule& sched, pthread_attr_t& attr)
+static void convert (const lisle::schedule& sched, pthread_attr_t& attr)
 throw (lisle::permission)
 {
 	int policy;
@@ -62,10 +62,10 @@ throw (lisle::permission)
 		pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
 		switch (sched.policy())
 		{
-			case lisle::Schedule::Regular :
+			case lisle::schedule::regular :
 				policy = SCHED_OTHER;
 				break;
-			case lisle::Schedule::Realtime :
+			case lisle::schedule::realtime :
 				policy = SCHED_RR;
 				break;
 			default :
@@ -88,13 +88,13 @@ static void* setup (void* args)
 }
 
 namespace lisle {
-Thrid create (const Thread& start, const Schedule& schedule)
+thrid create (const thread& start, const schedule& sched)
 throw (resource, permission, virthread)
 {
 	// Calling thread
 	try
 	{
-		Thrid result(new thread); // Can throw std::bad_alloc
+		thrid result(new intern::thread); // Can throw std::bad_alloc
 		int rc;
 		pthread_attr_t tattr;
 		thrargs* targs;
@@ -103,9 +103,9 @@ throw (resource, permission, virthread)
 		assert(start.main() != NULL, lisle::virthread());
 		targs = new thrargs(result.thr); // Can throw std::bad_alloc
 		{
-			Acquirer lock(targs->guard);
+			acquirer lock(targs->guard);
 			targs->start = start;
-			convert(schedule, tattr); // Can throw permission exception
+			convert(sched, tattr); // Can throw permission exception
 			pthread_attr_getschedparam(&tattr, &param);
 			result.thr->priority = param.sched_priority;
 			rc = pthread_create(&result.thr->handle, &tattr, &setup, targs);
@@ -118,9 +118,9 @@ throw (resource, permission, virthread)
 			targs->copied.wait();
 		}
 		delete targs;
-		if (start.mode() == Thread::Suspended)
+		if (start.mode() == thread::suspended)
 		{
-			while (result.thr->state != thread::suspended)
+			while (result.thr->state != intern::thread::suspended)
 				yield();
 		}
 		return result;

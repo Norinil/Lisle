@@ -20,22 +20,20 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 */
-#include <gtest/gtest.h>
-#include <lisle/create>
+#include "test.h"
+#include <lisle/create.h>
 
 using namespace lisle;
 
 static void worker ()
 {}
 
-TEST (createTest, simple)
+TEST (Create, simple)
 {
 	// Ensure starting a thread works
-	ASSERT_NO_THROW(
-		{
-		Thread thread(&worker);
-		Thrid tid = create(thread);
+	ASSERT_NO_THROW({
+		thread thread(&worker);
+		thrid tid = create(thread);
 		tid.join();
-		}
-	);
+	});
 }

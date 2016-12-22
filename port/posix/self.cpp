@@ -20,9 +20,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 */
-#include <lisle/self>
-#include <lisle/Acquirer>
-#include <lisle/Releaser>
+#include <lisle/self.h>
+#include <lisle/acquirer.h>
+#include <lisle/releaser.h>
+#include "../../src/self.h"
 #include <ctime>
 #include <cerrno>
 #include <csignal>
@@ -32,9 +33,10 @@
 #define MAX_TVNSEC 999999999
 
 namespace lisle {
+namespace intern {
 
 // The global thread self variable
-class Self self;
+Self self;
 
 Self::~Self ()
 {
@@ -84,25 +86,6 @@ void Self::destroy ()
 	delete stored;
 }
 
-void yield ()
-{
-	sched_yield();
-}
-
-void sleep (const Duration& duration)
-{
-	timespec req;
-	timespec rem;
-	req.tv_sec = duration.sec();
-	req.tv_nsec = duration.nsec();
-	int rc = nanosleep(&req, &rem);
-}
-
-void thread::yield ()
-{
-	sched_yield();
-}
-
 void thread::suspend ()
 {
 	// Warning: this->guard *must* have been locked before calling this function.
@@ -114,7 +97,7 @@ void thread::suspend ()
 	sigfillset(&set.news);
 	sigdelset(&set.news, SIGINT); // allow Ctrl-C
 	pthread_sigmask(SIG_SETMASK, &set.news, &set.olds);
-	pthread_cond_wait(&base::restart.condition, &this->guard.mutex);
+	pthread_cond_wait(&base::restart.condition, &this->guard.data);
 	pthread_sigmask(SIG_SETMASK, &set.olds, 0);
 }
 
@@ -140,24 +123,24 @@ void thread::waitrestart ()
 	sigfillset(&set.news);
 	sigdelset(&set.news, SIGINT); // allow Ctrl-C
 	pthread_sigmask(SIG_SETMASK, &set.news, &set.olds);
-	pthread_cond_wait(&base::restart.condition, &this->guard.mutex);
+	pthread_cond_wait(&base::restart.condition, &this->guard.data);
 	pthread_sigmask(SIG_SETMASK, &set.olds, 0);
 }
 
-void thread::waitrestart (const Duration& duration)
+void thread::waitrestart (const duration& span)
 {
 	// Wait for restart signal or timeout
 	// Warning: this->guard *must* have been locked before calling this function.
 	// Disable signals to avoid suprious wakeups.
 	timespec abstime;
 	clock_gettime(CLOCK_REALTIME, &abstime);
-	abstime.tv_nsec += duration.nsec();
+	abstime.tv_nsec += span.nsec();
 	if (abstime.tv_nsec > MAX_TVNSEC)
 	{
 		abstime.tv_nsec %= (MAX_TVNSEC+1);
 		++abstime.tv_sec;
 	}
-	abstime.tv_sec += duration.sec();
+	abstime.tv_sec += span.sec();
 	struct set {
 		sigset_t news;
 		sigset_t olds;
@@ -165,7 +148,7 @@ void thread::waitrestart (const Duration& duration)
 	sigfillset(&set.news);
 	sigdelset(&set.news, SIGINT); // allow Ctrl-C
 	pthread_sigmask(SIG_SETMASK, &set.news, &set.olds);
-	int rc = pthread_cond_timedwait(&base::restart.condition, &this->guard.mutex, &abstime);
+	int rc = pthread_cond_timedwait(&base::restart.condition, &this->guard.data, &abstime);
 	pthread_sigmask(SIG_SETMASK, &set.olds, 0);
 	if (rc == ETIMEDOUT)
 		throw timeout();
@@ -180,12 +163,12 @@ void thread::waitjoiningcancel (thread* thread)
 	this->testcancel();
 	if (thread->state < thread::terminal)
 	{
-		Acquirer self(this->guard);
+		acquirer self(this->guard);
 		thread->joiner = this;
 		if (this->cancel.state == thread::cancel::enable)
 			this->cancel.joining = thread;
 		{
-			Releaser release(thread->guard);
+			releaser release(thread->guard);
 			this->waitrestart();
 		}
 		this->cancel.joining = NULL;
@@ -194,6 +177,25 @@ void thread::waitjoiningcancel (thread* thread)
 	else   // thread is waiting on us to restart it to perform join
 		thread->restart();
 	this->testcancel();
+}
+
+}
+}
+
+namespace lisle {
+
+void yield ()
+{
+	sched_yield();
+}
+
+void sleep (const duration& span)
+{
+	timespec req;
+	timespec rem;
+	req.tv_sec = span.sec();
+	req.tv_nsec = span.nsec();
+	int rc = nanosleep(&req, &rem);
 }
 
 }

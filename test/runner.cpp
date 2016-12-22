@@ -20,11 +20,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 */
-#include <gtest/gtest.h>
-
-#ifdef __BORLANDC__
-#pragma link "lisle.lib"
-#endif
+#include "test.h"
 
 int main (int argc, char* argv[])
 {
