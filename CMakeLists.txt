@@ -30,8 +30,6 @@ enable_testing()
 include(cmake/internal_utils.cmake)
 config_compiler_and_linker()  # Defined in internal_utils.cmake.
 
-include(cmake/internal_utils.cmake)
-
 include(InstallRequiredSystemLibraries)
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
 set(CPACK_PACKAGE_VERSION_MAJOR ${LISLE_VERSION_MAJOR})
