@@ -40,7 +40,7 @@ if (BUILD_SHARED_LIBS)
 		add_definitions(-DLISLE_BUILD_SHARED)
 	endif()
 else ()
-	add_library(lisle STATIC ${LIB_SRCS})
+	add_library(lisle STATIC ${LIB_HDRS} ${LIB_SRCS})
 endif ()
 
 install(TARGETS lisle DESTINATION lib)
