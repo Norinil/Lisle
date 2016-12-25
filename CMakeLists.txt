@@ -56,10 +56,17 @@ elseif (CMAKE_USE_WIN32_THREADS_INIT)
 	set(THREAD_SYS windows)
 endif ()
 
-file(GLOB_RECURSE LIB_HDRS include/lisle/* port/${THREAD_SYS}/lisle/sys/*)
+file(GLOB LISLE_HDRS LIST_DIRECTORIES false include/lisle/*)
+file(GLOB LISLE_INTERN_HDRS LIST_DIRECTORIES false include/lisle/intern/*)
+file(GLOB LISLE_SYS_HDRS LIST_DIRECTORIES false port/${THREAD_SYS}/lisle/sys/*)
 
+set(LIB_HDRS ${LISLE_HDRS} ${LISLE_INTERN_HDRS} ${LISLE_SYS_HDRS})
 add_subdirectory(src)
 if (LISLE_BUILD_TESTS)
 	add_subdirectory(sub/test/googletest)
 	add_subdirectory(test)
 endif()
+
+install(FILES ${LISLE_HDRS} DESTINATION include/lisle)
+install(FILES ${LISLE_SYS_HDRS} DESTINATION include/lisle/sys)
+install(FILES ${LISLE_INTERN_HDRS} DESTINATION include/lisle/intern)
