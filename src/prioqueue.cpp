@@ -24,7 +24,7 @@
 
 namespace lisle {
 
-void prioqueue::push (thread* item)
+void prioqueue::push (intern::thread* item)
 {
 	if (this->empty())
 	{
@@ -35,8 +35,8 @@ void prioqueue::push (thread* item)
 	// priorities are ordered numerically: 67 is higher priority than 63
 	// the higher the priority, the closer it must be inserted to the queue top
 	// insert items with same priorities in insertion order
-	thread* curr = *queue;
-	thread* prev = 0;
+	intern::thread* curr = *queue;
+	intern::thread* prev = 0;
 	while ((item->priority <= curr->priority) && curr->next.queue)
 	{
 		prev = curr;
@@ -59,7 +59,7 @@ void prioqueue::push (thread* item)
 
 void prioqueue::pop ()
 {
-	thread* cur = *queue;
+	intern::thread* cur = *queue;
 	if (*queue != NULL)
 	{
 		*queue = (*queue)->next.queue;
@@ -67,10 +67,10 @@ void prioqueue::pop ()
 	}
 }
 
-bool prioqueue::remove (thread* item)
+bool prioqueue::remove (intern::thread* item)
 {
-	thread* cur;
-	thread* prev;
+	intern::thread* cur;
+	intern::thread* prev;
 	if (*queue == NULL)
 		return false;
 	cur = *queue;

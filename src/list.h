@@ -21,18 +21,19 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 #pragma once
-#include <lisle/self>
+#include <lisle/self.h>
+#include <lisle/intern/thread.h>
 
 namespace lisle {
 class list
 {
 public:
-	list (thread** head) : head(head) {}
-	bool member (thread* item);
-	void append (thread* item);
-	bool remove (thread* item);
+	list (intern::thread** head) : head(head) {}
+	bool member (intern::thread* item);
+	void append (intern::thread* item);
+	bool remove (intern::thread* item);
 private:
-	thread** head;
+	intern::thread** head;
 	list (const list&);
 	list& operator = (const list&);
 };

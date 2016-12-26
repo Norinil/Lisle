@@ -10,26 +10,28 @@ include_directories(${PROJECT_SOURCE_DIR}/port/${THREAD_SYS})
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 set(LIB_SRCS
-	Anondle.cpp
-	Barrier.cpp
-	Condition.cpp
-	Duration.cpp
-	Event.cpp
-	Semaphore.cpp
-	Shorex.cpp
-	Strand.cpp
-	Thrid.cpp
+	anondle.cpp
+	barrier.cpp
+	condition.cpp
+	duration.cpp
+	event.cpp
+	semaphore.cpp
+	shorex.cpp
+	strand.cpp
+	thrid.cpp
 	list.cpp
 	prioqueue.cpp
 	self.cpp
-	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/Mutex.cpp
-	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/Retex.cpp
-	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/Once.cpp
-	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/Thread.cpp
 	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/create.cpp
+	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/mutex.cpp
+	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/once.cpp
+	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/retex.cpp
 	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/self.cpp
-	${PROJECT_SOURCE_DIR}/port/${CPU_ARCH}/${BUILD_SYS}/Countic.cpp
+	${PROJECT_SOURCE_DIR}/port/${THREAD_SYS}/thread.cpp
+	${PROJECT_SOURCE_DIR}/port/${CPU_ARCH}/${BUILD_SYS}/countic.cpp
 )
+
+file (GLOB INTERN_HDRS *.h)
 
 if (BUILD_SHARED_LIBS)
 	add_library(lisle SHARED ${LIB_SRCS})
@@ -39,7 +41,7 @@ if (BUILD_SHARED_LIBS)
 		add_definitions(-DLISLE_BUILD_SHARED)
 	endif()
 else ()
-	add_library(lisle STATIC ${LIB_HDRS} ${LIB_SRCS})
+	add_library(lisle STATIC ${INTERN_HDRS} ${LIB_HDRS} ${LIB_SRCS})
 endif ()
 
 install(TARGETS lisle DESTINATION lib)

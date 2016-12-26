@@ -21,20 +21,21 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 #pragma once
-#include <lisle/self>
+#include <lisle/self.h>
+#include <lisle/intern/thread.h>
 
 namespace lisle {
 class prioqueue
 {
 public:
-	prioqueue (thread** top) : queue(top) {}
+	prioqueue (intern::thread** top) : queue(top) {}
 	bool empty () const { return *queue == 0; }
-	thread* top () const { return *queue; }
-	void push (thread* item);
+	intern::thread* top () const { return *queue; }
+	void push (intern::thread* item);
 	void pop ();
-	bool remove (thread* item);
+	bool remove (intern::thread* item);
 private:
-	thread** queue;
+	intern::thread** queue;
 	prioqueue (const prioqueue&);
 	prioqueue& operator = (const prioqueue&);
 };

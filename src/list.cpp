@@ -24,9 +24,9 @@
 
 namespace lisle {
 
-bool list::member (thread* item)
+bool list::member (intern::thread* item)
 {
-	thread* cur;
+	intern::thread* cur;
 	if (*head == 0)
 		return false;
 	cur = *head;
@@ -40,9 +40,9 @@ bool list::member (thread* item)
 	return false;
 }
 
-void list::append (thread* item)
+void list::append (intern::thread* item)
 {
-	thread* cur;
+	intern::thread* cur;
 	if (*head == 0)
 		*head = item;
 	else
@@ -54,10 +54,10 @@ void list::append (thread* item)
 	}
 }
 
-bool list::remove (thread* item)
+bool list::remove (intern::thread* item)
 {
-	thread* cur;
-	thread* prev;
+	intern::thread* cur;
+	intern::thread* prev;
 	if (*head == 0)
 		return false;
 	cur = *head;

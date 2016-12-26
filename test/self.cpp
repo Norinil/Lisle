@@ -21,9 +21,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 #include "test.h"
-#include <lisle/self>
-#include <lisle/create>
-#include <lisle/Strid>
+#include <lisle/self.h>
+#include <lisle/create.h>
+#include <lisle/strid.h>
 
 #ifdef _MSC_VER
 #pragma warning (disable:4211)
@@ -33,7 +33,7 @@
 using namespace lisle;
 
 /// Ensure yield doesn't throw an exception.
-TEST (selfTest, yield)
+TEST (Self, yield)
 {
 	EXPECT_NO_THROW(yield());
 }
@@ -41,27 +41,27 @@ TEST (selfTest, yield)
 /// Ensure uncaught exceptions don't crash a thread but exit it properly.
 /// Thread::Exceptioned is supposed to be returned by Thrid::join() in the case
 /// of uncaught exceptions in a thread... as long as the thread is joinable.
-static void throwerDefault ()
+static void thrower ()
 {
 	throw false;
 }
-TEST (selfTest, terminateDefault)
+TEST (Self, terminate)
 {
-	Thrid tid = create(Thread(throwerDefault));
+	thrid tid = create(thread(thrower));
 	Exit exit = tid.join();
 	EXPECT_EQ(exit, exceptioned);
 }
 
 /// Ensure uncaught exceptions don't crash a thread but exit it properly
 /// even when a user sets the terminate handler to null.
-static void throwerTerminateNull ()
+static void thrower_terminate_null ()
 {
 	std::set_terminate(0);
 	throw false;
 }
-TEST (selfTest, terminateTerminateNull)
+TEST (Self, terminate_terminate_null)
 {
-	Thrid tid = create(Thread(throwerDefault));
+	thrid tid = create(thread(thrower));
 	Exit exit = tid.join();
 	EXPECT_EQ(exit, exceptioned);
 }
@@ -75,22 +75,22 @@ static void terminate ()
 	if (handle_terminate)
 		handle_terminate();
 }
-static void throwerTerminate ()
+static void thrower_terminate ()
 {
 	handle_terminate = std::set_terminate(terminate);
 	throw false;
 }
-TEST (selfTest, terminateTerminate)
+TEST (Self, terminate_terminate)
 {
 	count_terminate = 0;
 	handle_terminate = 0;
-	Thrid tid = create(Thread(throwerTerminate));
+	thrid tid = create(thread(thrower_terminate));
 	Exit exit = tid.join();
 	EXPECT_EQ(exit, exceptioned);
 	EXPECT_EQ(count_terminate, 1);
 }
 
-TEST(selfTest, enableCancel)
+TEST(Self, enable_cancel)
 {
 	set(cancel::enable);
 	cancel::State cancelability;
@@ -98,7 +98,7 @@ TEST(selfTest, enableCancel)
 	EXPECT_EQ(cancelability, cancel::enable);
 }
 
-TEST(selfTest, disableCancel)
+TEST(Self, disable_cancel)
 {
 	set(cancel::disable);
 	cancel::State cancelability;
@@ -107,9 +107,9 @@ TEST(selfTest, disableCancel)
 }
 
 /// Test the synchronous suspend asynchronous resume pair
-TEST (selfTest, suspend_resume)
+TEST (Self, suspend_resume)
 {
-	class Thread : public Strand
+	class Thread : public strand
 	{
 	public:
 		bool done;
@@ -121,8 +121,8 @@ TEST (selfTest, suspend_resume)
 			done = true;
 		}
 	};
-	Strid handle = Strid(new Thread);
-	Thread* thread = dynamic_cast<Thread*>((Strand*)handle);
+	strid handle = strid(new Thread);
+	Thread* thread = dynamic_cast<Thread*>((strand*)handle);
 	EXPECT_FALSE(thread->done);
 	handle.resume();
 	lisle::Exit exit = handle.join();
