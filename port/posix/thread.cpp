@@ -49,9 +49,15 @@ thread::thread ()
 		throw resource();
 }
 
-uint32_t thread::id () const
+uint64_t thread::id () const
 {
-	return static_cast<uint32_t>(handle);
+	uint64_t id = 0;
+#ifdef HAVE_PTHREAD_THREADID_NP
+	pthread_threadid_np(handle, &id);
+#else
+	id = static_cast<uint64_t>(handle);
+#endif
+	return id;
 }
 
 bool thread::equal (const thread& that) const

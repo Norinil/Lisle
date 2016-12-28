@@ -43,7 +43,7 @@ namespace lisle {
 
 template <typename T> inline local<T>::~local ()
 {
-	register T* data;
+	T* data;
 	data = (T*)pthread_getspecific(key);
 	if (data)
 		delete data;
@@ -53,7 +53,7 @@ template <typename T> inline local<T>::~local ()
 template <typename T> inline local<T>::local ()
 throw (resource)
 {
-	register int rc;
+	int rc;
 	rc = pthread_key_create(&key, &sys::clean::local<T>);
 	if (rc != 0) throw resource();
 }
@@ -61,7 +61,7 @@ throw (resource)
 template <typename T> inline T& local<T>::operator = (const T& that)
 throw (resource)
 {
-	register T* data;
+	T* data;
 	try
 	{
 		data = (T*)pthread_getspecific(key);
@@ -82,7 +82,7 @@ throw (resource)
 template <typename T> inline local<T>::operator T* ()
 throw ()
 {
-	register T* data;
+	T* data;
 	data = (T*)pthread_getspecific(key);
 	return data;
 }
@@ -90,7 +90,7 @@ throw ()
 template <typename T> inline local<T>::operator T* () const
 throw ()
 {
-	register T* data;
+	T* data;
 	data = (T*)pthread_getspecific(key);
 	return data;
 }
@@ -98,7 +98,7 @@ throw ()
 template <typename T> inline T* local<T>::operator -> ()
 throw ()
 {
-	register T* data;
+	T* data;
 	data = (T*)pthread_getspecific(key);
 	return data;
 }
@@ -106,7 +106,7 @@ throw ()
 template <typename T> inline T* local<T>::operator -> () const
 throw ()
 {
-	register T* data;
+	T* data;
 	data = (T*)pthread_getspecific(key);
 	return data;
 }

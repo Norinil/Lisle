@@ -45,8 +45,6 @@ set(OPERATING_SYS ${THREAD_SYS})
 if (UNIX)
 	include(CheckLibraryExists)
 	CHECK_LIBRARY_EXISTS(rt clock_gettime "time.h" HAVE_CLOCK_GETTIME_IN_RT)
-elseif (APPLE)
-	set(OPERATING_SYS darwin)
 endif ()
 
 set(THREAD_SYS)

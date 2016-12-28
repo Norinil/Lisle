@@ -42,7 +42,7 @@ struct thread
 	lisle::mutex guard;
 	~thread ();
 	thread ();
-	uint32_t id () const;
+	uint64_t id () const;
 	bool equal (const thread& thread) const;
 	bool equal (const thread* thread) const;
 };

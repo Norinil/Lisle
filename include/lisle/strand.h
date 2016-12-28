@@ -45,7 +45,7 @@ class strand
 	friend void startup (handle<strand> object);
 public:
 	virtual ~strand () {}
-	strand (thread::Mode mode = thread::running, thread::State state = thread::joinable, const schedule& schedule = schedule()) : mode(mode), state(state), sched(schedule) {}
+	strand (thread::Mode mode = thread::running, thread::State state = thread::joinable, const schedule& sched = schedule()) : mode(mode), state(state), sched(sched) {}
 	strand (const strand& that) : mode(that.mode), state(that.state), sched(that.sched) {}
 	strand& operator = (const strand& that)
 	{

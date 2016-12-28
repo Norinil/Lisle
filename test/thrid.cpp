@@ -60,3 +60,18 @@ TEST (Thrid, retval)
 	EXPECT_EQ(terminated, exit);
 	EXPECT_EQ(string("greetings from returner"), *retval);
 }
+
+void nop ()
+{
+	// Do nothing thread
+}
+TEST (Thrid, cast_uint64_t)
+{
+	thrid tid;
+	uint64_t id = 0;
+	ASSERT_NO_THROW(tid = create(thread(nop)));
+	id = tid;
+	yield();
+	ASSERT_NO_THROW(tid.join());
+	EXPECT_NE(id, 0);
+}

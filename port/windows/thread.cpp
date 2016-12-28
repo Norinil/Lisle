@@ -39,7 +39,7 @@ thread::thread ()
 	restart.event = CreateEvent(NULL, FALSE, FALSE, NULL);
 }
 
-uint32_t thread::id () const
+uint64_t thread::id () const
 {
 	return nid;
 }

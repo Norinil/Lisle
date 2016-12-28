@@ -30,7 +30,6 @@
 #endif
 
 using namespace lisle;
-using namespace std;
 
 TEST (Shorex, construct)
 {

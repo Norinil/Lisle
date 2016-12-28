@@ -28,7 +28,6 @@
 #include <vector>
 
 using namespace lisle;
-using namespace std;
 
 #ifdef _MSC_VER
 #pragma warning (disable:4512)
@@ -37,8 +36,8 @@ using namespace std;
 /// Test that waiting throws a permission exception if mutex was not locked
 TEST (Condition, wait_freemutex)
 {
-	mutex mutex;
-	condition cond(mutex);
+	mutex guard;
+	condition cond(guard);
 	ASSERT_THROW(cond.wait(), permission);
 	ASSERT_THROW(cond.wait(duration(0.1)), permission);
 }
@@ -175,7 +174,7 @@ TEST (Condition, multiwait_broadcast)
 			done = true;
 		}
 	};
-	vector<strid> pool;
+	std::vector<strid> pool;
 	for (size_t i=0; i<maxthreads; ++i)
 	{
 		pool.push_back(strid(new Thread(guard, cond, waiters)));

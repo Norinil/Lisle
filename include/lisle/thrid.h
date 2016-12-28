@@ -44,7 +44,7 @@ public:
 	thrid ();
 	thrid (const thrid& that) : thr(that.thr) {}
 	thrid& operator = (const thrid& that) { this->thr = that.thr; return *this; }
-	operator uint32_t () const { return thr->id(); }
+	operator uint64_t () const { return thr->id(); }
 	bool operator == (const thrid& that) const { return this->thr->equal(that.thr); }
 	bool operator != (const thrid& that) const { return !this->thr->equal(that.thr); }
 	void detach () throw (lisle::detach);

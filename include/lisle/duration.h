@@ -46,7 +46,7 @@ public:
 private:
 	struct data {
 		int64_t sec;
-		uint32_t nsec;
+		int32_t nsec;
 		data () : sec(0), nsec(0) {}
 		data (const data& that) : sec(that.sec), nsec(that.nsec) {}
 	} data;

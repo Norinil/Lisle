@@ -27,7 +27,7 @@
 #pragma warning (disable:4244)
 #endif
 
-#define MAX_NSEC 999999999u
+#define MAX_NSEC 999999999
 
 using namespace std;
 

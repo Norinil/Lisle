@@ -33,6 +33,14 @@ set(LIB_SRCS
 
 file (GLOB INTERN_HDRS *.h)
 
+if (${THREAD_SYS} STREQUAL "posix")
+	include(CheckFunctionExists)
+	check_function_exists(pthread_threadid_np HAVE_PTHREAD_THREADID_NP)
+	if (HAVE_PTHREAD_THREADID_NP)
+		add_definitions(-DHAVE_PTHREAD_THREADID_NP)
+	endif ()
+endif ()
+
 if (BUILD_SHARED_LIBS)
 	add_library(lisle SHARED ${LIB_SRCS})
 	set_target_properties(lisle PROPERTIES VERSION "${LISLE_VERSION_MAJOR}.${LISLE_VERSION_MINOR}.${LISLE_VERSION_PATCH}")
