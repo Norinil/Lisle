@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<link rel="stylesheet" type="text/css" href="class.css" />
+	<title>lisle::barrier</title>
+</head>
+<body>
+	<header><iframe src="header.html" width="100%" height="160px" seamless></iframe></header>
+
+	<div id="main">
+	<nav><iframe src="nav.html" width="192px" height="600px" seamless></iframe></nav>
+
+	<section>
+		<h1>Event</h1>
+		
+		<p>A barrier is a synchronization device that allows multiple threads to suspend execution and relinquish the processor until a given number of threads are waiting.</p>
+		<p>A barrier is reusable. This means that once a barrier opens it gets back to its initial state and threads can start waiting again.</p>
+		<p>Cloning is disabled for the barrier class.</p>
+		
+		<article id="dtor">
+			<h2>~barrier ()</h2>
+			<p>Destroys this barrier, freeing all resources it might hold. No thread must be waiting on this barrier on entrance.</p>
+			<ul>
+				<li><a href="exception.html#permission">permission</a> is thrown if there are waiting threads for this barrier.</li>
+			</ul>
+		</article>
+		
+		<article id="ctor">
+			<h2>barrier (size_t <em>height</em>)</h2>
+			<p>Constructs a new barrier with the given <em>height</em>. The barrier will open once <em>height</em> threads are waiting.</p>
+			<p>The barrier's height can be retrieved with the height(), resp. size(), functions.
+			<ul>
+				<li><a href="exception.html#resource">resource</a> is thrown if there are not enough system resources to create a new barrier.</li>
+			</ul>
+		</article>
+		
+		<article id="wait">
+			<h2>void wait ()</h2>
+			<p>Waits for this barrier to open. Once the expected number of waiting threads, i.e. the barrier height, wait on this barrier all waiting threads are restarted. However it is not specified in which order the waiting threads get restarted.</p>
+		</article>
+		
+		<article id="size">
+			<h2>void size | height () const</h2>
+			<p>Returns number of waiting threads this barrier expects before it opens and restarts waiting threads.</p>
+		</article>
+	</section>
+	
+	<aside>
+		<h1>Synopsis</h1>
+		<p>#include &lt;lisle/barrier.h&gt;</p>
+		<h2>class barrier</h2>
+		<ul class="public">
+			<li><a href="#dtor">~barrier ()</a></li>
+			<li><a href="#ctor">barrier ()</a></li>
+			<li><a href="#wait">void wait ()</a></li>
+			<li><a href="#size">size_t size | height () const</a></li>
+		</ul>
+		<p>cloning is disabled</p>
+
+		<h1>Cancellation</h1>
+		<p>None of the barrier functions is a cancellation point.</p>
+		
+		<h1>Async-Signal Safety</h1>
+		<p>The barrier functions are not async-signal safe, and should not be called from a signal handler. In particular, calling wait() from a signal handler may deadlock the calling thread.</p>
+	</aside>
+	
+	</div>
+</body>
+</html>

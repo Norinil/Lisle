@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<link rel="stylesheet" type="text/css" href="class.css" />
+	<title>lisle::mutex</title>
+</head>
+<body>
+	<header><iframe src="header.html" width="100%" height="160px" seamless></iframe></header>
+
+	<div id="main">
+	<nav><iframe src="nav.html" width="192px" height="600px" seamless></iframe></nav>
+
+	<section>
+		<h1>Mutex</h1>
+		<p>A mutex is a mutual exclusion device. It is useful for protecting shared data from concurrent modifications and implementing critical sections.</p>
+		<p>A mutex has two possible states:
+			<ul>
+				<li><em>unlocked</em>: not owned by any thread,
+				</li><li><em>locked</em>: owned by exactly one thread.</li>
+			</ul>
+		</p>
+		<p>A mutex can never be owned by two different threads simultaneously. A thread attempting to acquire a mutex that is already owned by another thread is suspended until the owner releases the mutex.</p>
+		<p>Lisle provides a mutex with error checking. If a thread attempts to relock a mutex that it has already locked, a <a href="exception.html#deadlock">deadlock</a> exception is thrown. A relockable mutex is provided by <a href="retex.html">retex</a>. If a thread attempts to unlock a mutex that it has not locked, or a mutex which is unlocked, a <a href="exception.html#permission">permission</a> exception is thrown.</p>
+		<p>Cloning is disabled for the mutex class.</p>
+		
+		<article id="dtor">
+			<h2>~mutex ()</h2>
+			<p>Destroys this mutex, freeing all resources it might hold. On entrace this mutex must be unlocked.</p>
+			<ul>
+				<li><a href="exception.html#permission">permission</a> is thrown if this mutex was not unlocked before being destroyed.</li>
+			</ul>
+		</article>
+		
+		<article id="ctor">
+			<h2>mutex ()</h2>
+			<p>Constructs a new mutex. The constructed mutex is in unlocked state.</p>
+			<ul>
+				<li><a href="exception.html#resource">resource</a> is thrown if there are not enough system resources to create a new mutex.</li>
+			</ul>
+		</article>
+		
+		<article id="lock">
+			<h2>void lock | acquire ()</h2>
+			<p>Locks this mutex.</p>
+			<p>If this mutex is already locked by the calling thread then a <a href="exception.html#deadlock">deadlock</a> exception is thrown.</p>
+			<p>If this mutex is currenly unlocked then it becomes locked and owned by the calling thread and the method returns immediately.</p>
+			<p>If this mutex is already locked by another thread then the calling thread is suspended until the owning thread releases the mutex.</p>
+			<ul>
+				<li><a href="exception.html#deadlock">deadlock</a> is thrown if a calling thread tries to relock the owned mutex.</li>
+			</ul>
+		</article>
+		
+		<article id="trylock">
+			<h2>bool trylock | tryacquire ()</h2>
+			<p>These methods behave identically to `lock()` (resp. `acquire()`) except that they don't block the calling thread if this mutex is locked (even by the calling thread).</p>
+			<p>Returns:
+				<ul>
+					<li><code>true</code> if the calling thread could lock this mutex,</li>
+					<li><code>false</code> if the calling thread could not lock this mutex.</li>
+				</ul>
+			</p>
+		</article>
+		
+		<article id="unlock">
+			<h2>void unlock | release ()</h2>
+			<p>Unlocks this mutex. The mutex is assumed to be locked and owned by the caller. If this is not the case a <a href="exception.html#permission">permission</a> exception is thrown.</p>
+			<ul>
+				<li><a href="exception.html#permission">permission</a> is thrown if the calling thread doesn't own the mutex.</li>
+			</ul>
+		</article>
+	</section>
+	
+	<aside>
+		<h1>Synopsis</h1>
+		<p>#include &lt;lisle/mutex.h&gt;</p>
+		<h2>class mutex</h2>
+		<ul class="public">
+			<li><a href="#dtor">~mutex ()</a></li>
+			<li><a href="#ctor">mutex ()</a></li>
+			<li><a href="#trylock">bool trylock | tryacquire ()</a></li>
+			<li><a href="#lock">void lock | acquire ()</a></li>
+			<li><a href="#unlock">void unlock | release ()</a></li>
+		</ul>
+		<p>cloning is disabled</p>
+		
+		<h1>Cancellation</h1>
+		<p>None of the mutex functions is a cancellation point, not even lock(), in spite of the fact that it can suspend a thread for arbitrary durations. This way the status of mutexes at cancellation points is predictable.</p>
+		
+		<h1>Async-Signal Safety</h1>
+		<p>The mutex functions are not async-signal safe. What this means is that they should not be called from a signal handler. In particular, calling lock() or unlock() from a signal handler may deadlock the calling thread.</p>
+	</aside>
+	
+	</div>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<link rel="stylesheet" type="text/css" href="class.css" />
+	<title>lisle::shorex</title>
+</head>
+<body>
+	<header><iframe src="header.html" width="100%" height="160px" seamless></iframe></header>
+
+	<div id="main">
+	<nav><iframe src="nav.html" width="192px" height="600px" seamless></iframe></nav>
+
+	<section>
+		<h1>Shorex</h1>
+		<p>A shorex is a shared or exclusive access device. It is useful for protecting shared data from concurrent modifications and implementing critical sections. The shorex is also known as read/write-lock or short rwlock.</p>
+		<p>A shorex has two possible states:
+			<ul>
+				<li><em>unlocked</em>: not owned by any thread,</li>
+				<li><em>share locked</em>: owned by one or more threads,</li>
+				<li><em>exclusively locked</em>: owned by exactly one thread.</li>
+			</ul>
+		</p>
+		<p>A shorex can be owned in shared mode by multiple threads simultaneously, and owned in exclusive mode by exacly one thread. A thread attempting to acquire an exclusively locked shorex, or a thread attempting to exclusively lock a locked shorex is suspended until the shorex returns to the unlocked state.</p>
+		<p>Cloning is disabled for the shorex class.</p>
+		
+		<article id="dtor">
+			<h2>~shorex ()</h2>
+			<p>Destroys this shorex, freeing all resources it might hold. On entrace this shorex must be unlocked by all owners.</p>
+			<ul>
+				<li><a href="exception.html#permission">permission</a> is thrown if this shorex was not unlocked before being destroyed.</li>
+			</ul>
+		</article>
+		
+		<article id="ctor">
+			<h2>shorex ()</h2>
+			<p>Constructs a new shorex. The constructed shorex is in unlocked state.</p>
+			<ul>
+				<li><a href="exception.html#resource">resource</a> is thrown if there are not enough system resources to create a new shorex.</li>
+			</ul>
+		</article>
+		
+		<article id="lock">
+			<h2>void lock | acquire (access mode)</h2>
+			<p>Locks this shorex according to the given access mode:
+				<ul>
+					<li><code>shared</code>: The calling thread acquires the shorex if it is not already held exclusively by another thread. Otherwise the calling thread blocks until it can acquire the shared lock.</li>
+					<li><code>exclusive</code>: The calling thread acquires the shorex if no other thread holds this shorex, be it in shared or exclusive mode. Otherwise the calling thread blocks until it can acquire the lock.</li>
+				</ul>
+			</p>
+			<p>If this shorex is already locked by the calling thread then a <a href="exception.html#deadlock">deadlock</a> exception is thrown.</p>
+			<ul>
+				<li><a href="exception.html#deadlock">deadlock</a> is thrown if a calling thread tries to relock the owned shorex.</li>
+			</ul>
+		</article>
+		
+		<article id="trylock">
+			<h2>bool trylock | tryacquire ()</h2>
+			<p>These methods behave identically to `lock()` (resp. `acquire()`) except that they don't block the calling thread if this shorex is locked, even by the calling thread.</p>
+			<p>Returns:
+				<ul>
+					<li><code>true</code> if the calling thread could lock this shorex,</li>
+					<li><code>false</code> if the calling thread could not lock this shorex.</li>
+				</ul>
+			</p>
+		</article>
+		
+		<article id="unlock">
+			<h2>void unlock | release ()</h2>
+			<p>Unlocks this shorex. The shorex is assumed to be locked and owned by the caller. If this is not the case a <a href="exception.html#permission">permission</a> exception is thrown.</p>
+			<ul>
+				<li><a href="exception.html#permission">permission</a> is thrown if the calling thread doesn't own the shorex.</li>
+			</ul>
+		</article>
+	</section>
+	
+	<aside>
+		<h1>Synopsis</h1>
+		<p>#include &lt;lisle/shorex.h&gt;</p>
+		<h2>enum access</h2>
+		<ul class="public">
+			<li>shared</li>
+			<li>exclusive</li>
+		</ul>
+		<h2>class shorex</h2>
+		<ul class="public">
+			<li><a href="#dtor">~shorex ()</a></li>
+			<li><a href="#ctor">shorex ()</a></li>
+			<li><a href="#lock">void lock | acquire (access)</a></li>
+			<li><a href="#trylock">bool trylock | tryacquire (access)</a></li>
+			<li><a href="#unlock">void unlock | release ()</a></li>
+		</ul>
+		<p>cloning is disabled</p>
+		
+		<h1>Cancellation</h1>
+		<p>The lock(exclusive) function is a cancellation point.</p>
+		
+		<h1>Async-Signal Safety</h1>
+		<p>The shorex functions are not async-signal safe. What this means is that they should not be called from a signal handler. In particular, calling lock() or unlock() from a signal handler may deadlock the calling thread.</p>
+	</aside>
+	
+	</div>
+</body>
+</html>
