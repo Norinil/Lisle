@@ -31,24 +31,47 @@ using namespace std;
 #pragma warning (disable:4512)
 #endif
 
-/// Test that semaphore post throws an overflow exception if it reaches max
+// Test that the default semaphore gets 1 resource and 1 available
+TEST (Semaphore, ctor)
+{
+	semaphore sem;
+	EXPECT_EQ(sem.available(), 1);
+	ASSERT_EQ(sem.resources(), 1);
+}
+
+// Test that the constructor throws underflow in case of construction with 0
+TEST (Semaphore, ctor_0_throws_underflow)
+{
+	ASSERT_THROW(semaphore sem(0), underflow);
+}
+
+// Test that the semaphore get the specified resources and available
+TEST (Semaphore, ctor_7)
+{
+	semaphore sem(7);
+	EXPECT_EQ(sem.available(), 7);
+	EXPECT_EQ(sem.resources(), 7);
+}
+
+// Test that semaphore post throws an overflow exception if it reaches its maximum
 TEST (Semaphore, max_overflow)
 {
-	semaphore sem(semaphore::max());
+	semaphore sem(7);
 	ASSERT_THROW(sem.post(), overflow);
 }
 
-/// Test that semaphore post doesn't throw in normal conditions
+// Test that semaphore post doesn't throw in normal conditions
 TEST (Semaphore, nooverflow)
 {
-	semaphore sem(semaphore::max()-1);
+	semaphore sem(7);
+	EXPECT_TRUE(sem.trywait());
 	ASSERT_NO_THROW(sem.post());
 }
 
-/// Test that semaphore wait is postable
+// Test that semaphore wait is postable
 TEST (Semaphore, wait_post)
 {
-	semaphore sem;
+	semaphore sem(1);
 	class Thread : public strand
 	{
 	public:
@@ -58,20 +81,26 @@ TEST (Semaphore, wait_post)
 		semaphore& sem;
 		void main ()
 		{
-			sem.wait();
+			sem.wait(); // wait for a resource to become available and use it
 			done = true;
+			sem.post(); // free the used resource
 		}
 	};
+	sem.wait(); // consume the only available resource
+	EXPECT_EQ(sem.resources(), 1);
+	EXPECT_EQ(sem.available(), 0);
 	strid handle = strid(new Thread(sem));
 	Thread* thread = dynamic_cast<Thread*>((strand*)handle);
 	EXPECT_FALSE(thread->done);
-	sem.post();
+	sem.post(); // free the used resource, allowing the spawned thread to proceed
 	lisle::Exit exit = handle.join();
+	EXPECT_EQ(sem.resources(), 1);
+	EXPECT_EQ(sem.available(), 1);
 	EXPECT_EQ(exit, lisle::terminated);
 	EXPECT_TRUE(thread->done);
 }
 
-/// Test that semaphore trywait is postable
+// Test that semaphore trywait is postable
 TEST (Semaphore, trywait_post)
 {
 	semaphore sem;
@@ -92,19 +121,20 @@ TEST (Semaphore, trywait_post)
 			done = true;
 		}
 	};
+	sem.wait();
 	strid handle = strid(new Thread(sem));
 	Thread* thread = dynamic_cast<Thread*>((strand*)handle);
 	sem.post();
 	lisle::Exit exit = handle.join();
 	EXPECT_EQ(exit, lisle::terminated);
 	EXPECT_TRUE(thread->done);
-	EXPECT_NE(thread->val, -1);
+	EXPECT_EQ(thread->val, 0);
 }
 
-/// Test that semaphore wait is cancelable
+// Test that semaphore wait is cancelable
 TEST (Semaphore, wait_cancel)
 {
-	semaphore sem;
+	semaphore sem(1);
 	class Thread : public strand
 	{
 	public:
@@ -119,12 +149,58 @@ TEST (Semaphore, wait_cancel)
 			done = true;
 		}
 	};
+	sem.wait(); // consume the only available resource
+	EXPECT_EQ(sem.resources(), 1);
+	EXPECT_EQ(sem.available(), 0);
 	strid handle = strid(new Thread(sem));
 	Thread* thread = dynamic_cast<Thread*>((strand*)handle);
 	EXPECT_FALSE(thread->done);
-	sleep(duration(0.01)); // give the thread a chance to wait
 	handle.cancel();
 	lisle::Exit exit = handle.join();
+	sem.post(); // free the consumed resource
+	EXPECT_EQ(sem.resources(), 1);
+	EXPECT_EQ(sem.available(), 1);
 	EXPECT_EQ(exit, lisle::canceled);
 	EXPECT_FALSE(thread->done);
+}
+
+// Test that semaphore timed wait times out
+TEST (Semaphore, wait_timed)
+{
+	semaphore sem(1);
+	class Thread : public strand
+	{
+	public:
+		bool done;
+		bool timedout;
+		Thread (semaphore& sem) : done(false), timedout(false), sem(sem) {}
+	private:
+		semaphore& sem;
+		void main ()
+		{
+			try
+			{
+				sem.wait(duration(0.2));
+				// never reached if thread timed out
+				done = true;
+			}
+			catch (timeout&)
+			{
+				timedout = true;
+			}
+		}
+	};
+	sem.wait(); // consume the only available resource
+	EXPECT_EQ(sem.resources(), 1);
+	EXPECT_EQ(sem.available(), 0);
+	strid handle = strid(new Thread(sem));
+	Thread* thread = dynamic_cast<Thread*>((strand*)handle);
+	EXPECT_FALSE(thread->done);
+	lisle::Exit exit = handle.join();
+	sem.post(); // free the consumed resource
+	EXPECT_EQ(sem.resources(), 1);
+	EXPECT_EQ(sem.available(), 1);
+	EXPECT_EQ(exit, lisle::terminated);
+	EXPECT_FALSE(thread->done);
+	EXPECT_TRUE(thread->timedout);
 }

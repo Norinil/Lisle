@@ -37,12 +37,6 @@ using namespace std;
 
 namespace lisle {
 
-size_t semaphore::max ()
-throw ()
-{
-	return numeric_limits<size_t>::max();
-}
-
 semaphore::~semaphore ()
 throw (lisle::permission)
 {
@@ -50,18 +44,29 @@ throw (lisle::permission)
 	assert(!waiters, lisle::permission());
 }
 
-semaphore::semaphore (size_t value)
-throw (resource)
-: data(value)
-{}
+semaphore::semaphore (size_t resources)
+throw (resource, underflow)
+: data(resources)
+{
+	if (resources < 1)
+		throw underflow();
+}
+
+size_t semaphore::resources () const
+{
+	return data.resources;
+}
+
+size_t semaphore::available () const
+{
+	return data.available;
+}
 
 bool semaphore::trywait ()
-throw ()
 {
-	acquirer acquire(data.guard);
-	if (data.value > 0)
+	if (data.available > 0)
 	{
-		data.value--;
+		wait();
 		return true;
 	}
 	else
@@ -77,10 +82,10 @@ throw (thrcancel)
 	prioqueue waitqueue(&data.waiting);
 	{
 		acquirer acquire(data.guard);
-		if (data.value > 0)
+		if (data.available > 0)
 		{
-			data.value--;
-			return; // no wait since semaphore was > 0
+			data.available--;
+			return; // no wait since the semaphore has available resources
 		}
 		else
 			waitqueue.push(self);
@@ -89,8 +94,44 @@ throw (thrcancel)
 	{
 		self->waitrestartcancel(data.waiting, data.guard);
 		// Never reached if canceled
-		// If we were restarted (signaled/broadcasted) then we were poped from the waiting queue.
+		// If we were restarted (posted) then we were poped from the waiting queue.
 		// No need to remove self from the waiting queue here.
+	}
+	catch (thrcancel&)
+	{
+		waitqueue.remove(self);
+		throw;
+	}
+}
+
+void semaphore::wait (const duration& span)
+throw (timeout, thrcancel)
+{
+	intern::threadle self(intern::self);
+	self->testcancel();
+	// Never reached if pending cancellation
+	prioqueue waitqueue(&data.waiting);
+	{
+		acquirer acquire(data.guard);
+		if (data.available > 0)
+		{
+			data.available--;
+			return; // no wait since the semaphore has available resources
+		}
+		else
+			waitqueue.push(self);
+	}
+	try
+	{
+		self->waitrestartcancel(span, data.waiting, data.guard);
+		// Never reached if canceled or timedout
+		// If we were restarted (posted) then we were poped from the waiting queue.
+		// No need to remove self from the waiting queue here.
+	}
+	catch (timeout&)
+	{
+		waitqueue.remove(self);
+		throw;
 	}
 	catch (thrcancel&)
 	{
@@ -102,7 +143,7 @@ throw (thrcancel)
 void semaphore::post ()
 throw (overflow)
 {
-	intern::thread* waiting = NULL;
+	intern::thread* waiting = 0;
 	{
 		acquirer acquire(data.guard);
 		prioqueue waitqueue(&data.waiting);
@@ -113,12 +154,11 @@ throw (overflow)
 		}
 		else
 		{
-			intern::threadle self(intern::self);
-			assert(data.value < max(), overflow());
-			data.value++;
+			assert(data.available < data.resources, overflow());
+			data.available++;
 		}
 	}
-	if (waiting != NULL)
+	if (waiting != 0)
 		waiting->restart();
 }
 

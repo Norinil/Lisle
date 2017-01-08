@@ -22,6 +22,7 @@
 */
 #pragma once
 #include <lisle/mutex.h>
+#include <lisle/duration.h>
 #include <lisle/exception.h>
 #include <cstdint>
 
@@ -37,19 +38,21 @@ class semaphore
 {
 public:
 	~semaphore () throw (permission);
-	semaphore (size_t value = 0) throw (resource);
-	static size_t max () throw ();
-	size_t value () const throw ();
-	bool trywait () throw ();
+	semaphore (size_t resources = 1) throw (resource, underflow);
+	size_t resources () const;
+	size_t available () const;
+	bool trywait ();
 	void wait () throw (thrcancel);
+	void wait (const duration& span) throw (timeout, thrcancel);
 	void post () throw (overflow);
 private:
 	struct data
 	{
-		size_t value;
+		size_t resources;
+		size_t available;
 		intern::thread* waiting; // Linked list of waiting threads
 		mutex guard;
-		data (size_t init = 0) : value(init), waiting(0), guard() {}
+		data (size_t resources) : resources(resources), available(resources), waiting(0), guard() {}
 	} data;
 	semaphore (const semaphore&);
 	semaphore& operator = (const semaphore&);

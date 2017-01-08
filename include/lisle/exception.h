@@ -51,6 +51,12 @@ public:
 	virtual const char* what () const throw () { return "overflow"; }
 };
 
+class underflow : public std::exception
+{
+public:
+	virtual const char* what () const throw () { return "underflow"; }
+};
+
 class timeout : public std::exception
 {
 public:
