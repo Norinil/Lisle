@@ -65,7 +65,9 @@ TEST (Condition, wait_signal)
 	strid handle = strid(new Thread(guard, cond));
 	Thread* thread = dynamic_cast<Thread*>((strand*)handle);
 	EXPECT_FALSE(thread->done);
+	guard.acquire();
 	cond.signal();
+	guard.release();
 	lisle::Exit exit = handle.join();
 	EXPECT_EQ(exit, lisle::terminated);
 	EXPECT_TRUE(thread->done);
@@ -90,7 +92,7 @@ TEST (Condition, timedwait_signal)
 			try
 			{
 				acquirer lock(guard);
-				cond.wait(duration(0.2));
+				cond.wait(duration(0.5));
 				done = true;
 			}
 			catch (timeout&)
@@ -103,8 +105,9 @@ TEST (Condition, timedwait_signal)
 	Thread* thread = dynamic_cast<Thread*>((strand*)handle);
 	EXPECT_FALSE(thread->done);
 	EXPECT_FALSE(thread->timedout);
-	sleep(duration(0.1));
+	guard.acquire();
 	cond.signal();
+	guard.release();
 	lisle::Exit exit = handle.join();
 	EXPECT_EQ(exit, lisle::terminated);
 	EXPECT_TRUE(thread->done);
@@ -155,41 +158,79 @@ TEST (Condition, multiwait_broadcast)
 	const size_t maxthreads = 5; // how many threads will start
 	mutex guard;
 	condition cond(guard);
-	countic waiters; // count waiting threads
+	struct waits {
+		size_t count = 0;
+		mutex guard;
+		condition ready;
+		waits () : ready(guard) {}
+		void operator ++ (int)
+		{
+			guard.acquire();
+			count++;
+			guard.release();
+		}
+		void operator -- (int)
+		{
+			guard.acquire();
+			count--;
+			guard.release();
+		}
+	} waiters;
+
 	class Thread : public strand
 	{
 	public:
 		bool done;
-		Thread (mutex& guard, condition& cond, countic& waiters) : done(false), guard(guard), cond(cond), waiters(waiters) {}
+		Thread (mutex& guard, condition& cond, waits& waiters) : done(false), guard(guard), cond(cond), waiters(waiters) {}
 	private:
 		mutex& guard;
 		condition& cond;
-		countic& waiters;
+		waits& waiters;
 		void main ()
 		{
 			acquirer lock(guard);
-			waiters.inc();
+			waiters++;
+			if (waiters.count == maxthreads)
+			{
+				acquirer lock(waiters.guard);
+				waiters.ready.notify();
+			}
 			cond.wait();
-			waiters.dec();
+			waiters--;
 			done = true;
+			if (waiters.count == 0)
+			{
+				acquirer lock(waiters.guard);
+				waiters.ready.notify();
+			}
 		}
 	};
+
 	std::vector<strid> pool;
 	for (size_t i=0; i<maxthreads; ++i)
-	{
 		pool.push_back(strid(new Thread(guard, cond, waiters)));
-		yield();
-	}
-	while (waiters < maxthreads)
-		yield();
+
+	// here waiters.ready gets signaled when waiters.count == maxthreads
+	waiters.guard.acquire();
+	if (waiters.count < maxthreads)
+		waiters.ready.wait();
+	waiters.guard.release();
+
 	for (size_t i=0; i<pool.size(); ++i)
 	{
 		Thread* thread = dynamic_cast<Thread*>((strand*)pool[i]);
 		EXPECT_FALSE(thread->done);
 	}
+	guard.acquire();
 	cond.broadcast();
-	while (waiters > 0)
-		yield();
+	guard.release();
+
+	// here waiters.ready gets signaled when waiters.count == 0
+	waiters.guard.acquire();
+	if (waiters.count > 0)
+		waiters.ready.wait();
+	waiters.guard.release();
+
 	for (size_t i=0; i<pool.size(); ++i)
 	{
 		lisle::Exit exit = pool[i].join();
@@ -223,7 +264,7 @@ TEST (Condition, wait_cancel)
 	strid handle = strid(new Thread(guard, cond));
 	Thread* thread = dynamic_cast<Thread*>((strand*)handle);
 	EXPECT_FALSE(thread->done);
-	sleep(duration(0.01)); // give the thread a chance to wait
+	sleep(duration(0.1)); // give the thread a chance to wait
 	handle.cancel();
 	lisle::Exit exit = handle.join();
 	EXPECT_EQ(exit, lisle::canceled);
@@ -249,7 +290,7 @@ TEST (Condition, timedwait_cancel)
 			try
 			{
 				acquirer lock(guard);
-				cond.wait(duration(0.02));
+				cond.wait(duration(0.5));
 				// never reached if thread was canceled
 				done = true;
 			}
@@ -263,7 +304,7 @@ TEST (Condition, timedwait_cancel)
 	Thread* thread = dynamic_cast<Thread*>((strand*)handle);
 	EXPECT_FALSE(thread->done);
 	EXPECT_FALSE(thread->timedout);
-	sleep(duration(0.01)); // give the thread a chance to wait
+	sleep(duration(0.1)); // give the thread a chance to wait
 	handle.cancel();
 	lisle::Exit exit = handle.join();
 	EXPECT_EQ(exit, lisle::canceled);
