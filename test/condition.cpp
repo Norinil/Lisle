@@ -24,7 +24,6 @@
 #include <lisle/condition.h>
 #include <lisle/acquirer.h>
 #include <lisle/strid.h>
-#include <lisle/countic.h>
 #include <vector>
 
 using namespace lisle;
@@ -105,6 +104,7 @@ TEST (Condition, timedwait_signal)
 	Thread* thread = dynamic_cast<Thread*>((strand*)handle);
 	EXPECT_FALSE(thread->done);
 	EXPECT_FALSE(thread->timedout);
+	sleep(0.1);
 	guard.acquire();
 	cond.signal();
 	guard.release();
