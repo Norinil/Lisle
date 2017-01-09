@@ -8,7 +8,7 @@ option(LISLE_BUILD_TESTS "Build all of lisle's own tests." OFF)
 # Project-wide settings
 project(Lisle)
 set(LISLE_VERSION_MAJOR 6)
-set(LISLE_VERSION_MINOR 0)
+set(LISLE_VERSION_MINOR 1)
 set(LISLE_VERSION_PATCH 0)
 cmake_minimum_required(VERSION 2.8)
 enable_testing()
