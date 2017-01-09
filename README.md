@@ -7,7 +7,7 @@
 
 Lisle is a C++ library for multi-threaded code development. 
 
-[Website and Documentation](doc/html/index.html)
+[Website and Documentation](http://schutzm.github.io/lisle/index.html)
 
 ##### Keywords
 
