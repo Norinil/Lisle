@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<link rel="stylesheet" type="text/css" href="class.css" />
+	<title>lisle::retex</title>
+</head>
+<body>
+	<header><iframe src="header.html" width="100%" height="160px" seamless></iframe></header>
+
+	<div id="main">
+	<nav><iframe src="nav.html" width="192px" height="600px" seamless></iframe></nav>
+
+	<section>
+		<h1>Retex</h1>
+		<p>A retex is a recursive mutex. It is useful for protecting shared data from concurrent modifications and implementing critical sections.</p>
+		<p>A retex has two possible states:
+			<ul>
+				<li><em>unlocked</em>: not owned by any thread,
+				</li><li><em>locked</em>: owned by one thread.</li>
+			</ul>
+		</p>
+		<p>A retex can never be owned by two different threads simultaneously. A thread attempting to acquire a retex that is already owned by another thread is suspended until the owner releases the retex.</p>
+		<p>The retex maintains the concept of a lock count. When a thread successfully acquires a retex for the first time, the lock count is set to one. Every time a thread relocks this retex the lock count is incremented by one. Each time a thread releases this retex the lock count is decemented by one. When the lock count reaches zero the retex becomes available for other threads to acquire.</p>
+		<p>If a thread attempts to unlock a retex that it doesn't own or a unlocked retex a <a href="exception.html#permission">permission</a> exception is thrown.</p>
+		<p>Lisle also provides a non recursive (simple) <a href="mutex.html">mutex</a>.
+		<p>Cloning is disabled for the retex class.</p>
+		
+		<article id="dtor">
+			<h2>~retex ()</h2>
+			<p>Destroys this retex, freeing all resources it might hold. On entrace this retex must be unlocked.</p>
+			<ul>
+				<li><a href="exception.html#permission">permission</a> is thrown if this retex was not fully unlocked before being destroyed.</li>
+			</ul>
+		</article>
+		
+		<article id="ctor">
+			<h2>retex ()</h2>
+			<p>Constructs a new retex. The constructed retex is in unlocked state.</p>
+			<ul>
+				<li><a href="exception.html#resource">resource</a> is thrown if there are not enough system resources to create a new retex.</li>
+			</ul>
+		</article>
+		
+		<article id="lock">
+			<h2>void lock | acquire ()</h2>
+			<p>Locks this retex.</p>
+			<p>If this retex is already locked by the calling thread then the function records the number of times this retex was locked. An equal number of release operations must be performed for this retex to return to the unlocked state.</p>
+			<p>If this retex is currenly unlocked then it becomes locked and owned by the calling thread and the method returns immediately.</p>
+			<p>If this retex is already locked by another thread then the calling thread is suspended until the owning thread fully releases the retex.</p>
+		</article>
+		
+		<article id="trylock">
+			<h2>bool trylock | tryacquire ()</h2>
+			<p>These methods behave identically to `lock()` (resp. `acquire()`) except that they don't block the calling thread if this retex is locked (even by the calling thread).</p>
+			<p>Returns:
+				<ul>
+					<li><code>true</code> if the calling thread could lock this retex,</li>
+					<li><code>false</code> if the calling thread could not lock this retex.</li>
+				</ul>
+			</p>
+		</article>
+		
+		<article id="unlock">
+			<h2>void unlock | release ()</h2>
+			<p>Unlocks this retex. The retex is assumed to be locked and owned by the caller. If this is not the case a <a href="exception.html#permission">permission</a> exception is thrown.</p>
+			<p>If this retex was locked multiple times then the count lock is decremented and the calling thread still owns the retex. The retex is fully released if the lock count reaches zero, i.e. the owning thread unlocked this retex as many times as it locked it.</p>
+			<ul>
+				<li><a href="exception.html#permission">permission</a> is thrown if the calling thread doesn't own the retex.</li>
+			</ul>
+		</article>
+	</section>
+	
+	<aside>
+		<h1>Synopsis</h1>
+		<p>#include &lt;lisle/retex.h&gt;</p>
+		<h2>class retex</h2>
+		<ul class="public">
+			<li><a href="#dtor">~retex ()</a></li>
+			<li><a href="#ctor">retex ()</a></li>
+			<li><a href="#trylock">bool trylock | tryacquire ()</a></li>
+			<li><a href="#lock">void lock | acquire ()</a></li>
+			<li><a href="#unlock">void unlock | release ()</a></li>
+		</ul>
+		<p>cloning is disabled</p>
+		
+		<h1>Cancellation</h1>
+		<p>None of the mutex functions is a cancellation point, not even lock(), in spite of the fact that it can suspend a thread for arbitrary durations. This way the status of mutexes at cancellation points is predictable.</p>
+		
+		<h1>Async-Signal Safety</h1>
+		<p>The mutex functions are not async-signal safe. What this means is that they should not be called from a signal handler. In particular, calling lock() or unlock() from a signal handler may deadlock the calling thread.</p>
+	</aside>
+	
+	</div>
+</body>
+</html>

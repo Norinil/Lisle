@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<link rel="stylesheet" type="text/css" href="class.css" />
+	<title>lisle::semaphore</title>
+</head>
+<body>
+	<header><iframe src="header.html" width="100%" height="160px" seamless></iframe></header>
+
+	<div id="main">
+	<nav><iframe src="nav.html" width="192px" height="600px" seamless></iframe></nav>
+
+	<section>
+		<h1>Semaphore</h1>
+		<p>A semaphore is a counter for resources shared between threads.</p>
+		<p>The basic operations on semaphores are:
+			<ul>
+				<li>wait for an available resource</li>
+				<li>post a used resource</li>
+			</ul>
+		</p>
+		<p>Cloning is disabled for the semaphore class.</p>
+
+		<article id="dtor">
+			<h2>~semaphore ()</h2>
+			<p>Destroys this semaphore, freeing all resources it might hold. No threads should be waiting on this semaphore at the time of destruction.</p>
+			<ul>
+				<li><a href="exception.html#permission">permission</a> is thrown if there are blocked threads waiting on this semaphore.</li>
+			</ul>
+		</article>
+		
+		<article id="ctor">
+			<h2>semaphore (size_t <em>resources</em> = 1)</h2>
+			<p>Constructs a new semaphore. The count associated with the semaphore is initially set to the given resources value. If no value is given the count is set to one.</p>
+			<ul>
+				<li><a href="exception.html#resource">resource</a> is thrown if there are not enough system resources to create a new semaphore.</li>
+				<li><a href="exception.html#underflow">underflow</a> is thrown if the given <em>resources</em> is less than 1.</li>
+			</ul>
+		</article>
+		
+		<article id="resources">
+			<h2>size_t resources () const</h2>
+			<p>Returns the maximum number of resources for this semaphore, i.e. the value given in the constructor.</p>
+		</article>
+		
+		<article id="available">
+			<h2>size_t available () const</h2>
+			<p>Returns the number of resources available in this semaphore at the time of the call.</p>
+		</article>
+		
+		<article id="wait">
+			<h2>void wait ()</h2>
+			<p>Wait for an available resource from this semaphore.</p>
+			<p>If the available resource count is greater than zero then the count is atomically decreased and the function immediately returns, without suspending the calling thread.</p>
+			<p>If the available resource count is zero then the calling thread is suspended until the count becomes greater than zero, i.e. until some other thread perfoms a post().</p>
+			<ul>
+				<li><a href="exception.html#thrcancel">thrcancel</a> is thrown if the calling thread was canceled.</p>
+			</ul>
+		</article>
+		
+		<article id="waitduration">
+			<h2>void wait (const <a href="duration.html">duration&</a> <em>span</em>)</h2>
+			<p>This function behaves the same as wait(), but the wait is restricted to the given time <em>span</em>. If the semaphore was not posted within the given time frame then a <a href="exception.html#timeout">timeout</a> exception is thrown.</p>
+			</p>The given time <em>span</em> specifies a relative time and can only be strictly positive. If the <a href="duration.html">duration</a> is negative or zero then the function immediately throws the <a href="exception#timeout">timeout</a> exception.</p>
+			<ul>
+				<li><a href="exception.html#timeout">timeout</a> is thrown if the wait timed out.
+				<li><a href="exception.html#thrcancel">thrcancel</a> is thrown if the calling thread was canceled.</p>
+			</ul>
+		</article>
+		
+		<article id="trywait">
+			<h2>bool trywait ()</h2>
+			<p>Does the same as wait(), except that if the available resources counter is zero then the function doesn't suspend the calling thread but returns <code>false</code>. If the available resource counter is greater than zero then the counter is atomically decremented and the function returns <code>true</code>. Thus the calling thread is never blocked, whatever the value of the available resource counter.</p>
+		</article>
+		
+		<article id="post">
+			<h2>void post ()</h2>
+			<p>Frees one used resource from this semaphore.</p>
+			<p>If there are waiting threads exactly one of the waiting threads is restarted, however it is not specified which of the waiting threads gets restarted.</p>
+			<p>If there are no waiting threads the available resource counter is atomically increased, unless the counter already has the value of the maximum available resources given in the constructor, in which case a <a href="exception.html#overflow">overflow</a> exception is thrown.</p>
+			<ul>
+				<li><a href="exception.html#overflow">overflow</a> is thrown if the available resources counter would become greater than the maximum number of resources given in the constructor.</li>
+			</ul>
+		</article>
+	</section>
+	
+	<aside>
+		<h1>Synopsis</h1>
+		<p>#include &lt;lisle/semaphore.h&gt;</p>
+		<h2>class semaphore</h2>
+		<ul class="public">
+			<li><a href="#dtor">~semaphore ()</a></li>
+			<li><a href="#ctor">semaphore (size_t)</a></li>
+			<li><a href="#resources">size_t resources () const</a></li>
+			<li><a href="#available">size_t available () const</a></li>
+			<li><a href="#wait">void wait ()</a></li>
+			<li><a href="#waitduration">void wait (const duration&)</a></li>
+			<li><a href="#trywait">bool trywait ()</a></li>
+			<li><a href="#post">void post ()</a></li>
+		</ul>
+		<p>cloning is disabled</p>
+		
+		<h1>Cancellation</h1>
+		<p>Both wait functions are cancellation points. If a thread is cancelled while suspended in one of these functions then the thread immediately resumes execution and throws the Lisle internal cancel exception. Thus the complete call stack is unwound and all object destructors executed.</p>
+		
+		<h1>Async-Signal Safety</h1>
+		<p>The semaphore functions are not async-signal safe. What this means is that they should not be called from a signal handler. In particular, calling wait() or post() from a signal handler may deadlock the calling thread.</p>
+	</aside>
+	
+	</div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<link rel="stylesheet" type="text/css" href="class.css" />
+	<title>lisle::releaser</title>
+</head>
+<body>
+	<header><iframe src="header.html" width="100%" height="160px" seamless></iframe></header>
+
+	<div id="main">
+	<nav><iframe src="nav.html" width="192px" height="600px" seamless></iframe></nav>
+
+	<section>
+		<h1>Releaser</h1>
+		<p>A releaser is a unlock monitor. It takes a <a href="mutex.html">mutex</a> argument in its constructor. This <a href="mutex.html">mutex</a> is unlocked when the releaser is constructed and locked when the releaser gets destroyed. Thus the <a href="mutex.html">mutex</a> is unlocked while the releaser is in scope and locked when the monitor gets out of scope.</p>
+		<p>Releasers are used to avoid complicated <a href="mutex.html">mutex</a> unlock and lock call sequences in functions. When a <a href="mutex.html">mutex</a> is placed in a releaser at the begin of a code block it will be unlocked until the code block exits either normally, with a return, or because of an exception.</p>
+		
+		<article id="dtor">
+			<h2>~releaser ()</h2>
+			<p>Destroys this releaser, acquiring the lock on the <a href="mutex.html">mutex</a> argument given in the constructor.</p>
+		</article>
+		
+		<article id="ctor">
+			<h2>releaser (mutex& monitor)</h2>
+			<p>Constructs a new releaser, unlocking the <a href="mutex.html">mutex</a> argument.</p>
+			<ul>
+				<li><a href="exception.html#permission">permission</a> is thrown if the calling thread doesn't own the <a href="mutex.html">mutex</a>.</li>
+			</ul>
+		</article>
+	</section>
+	
+	<aside>
+		<h1>Synopsis</h1>
+		<p>#include &lt;lisle/releaser.h&gt;</p>
+		<h2>class releaser</h2>
+		<ul class="public">
+			<li><a href="#dtor">~releaser ()</a></li>
+			<li><a href="#ctor">releaser (mutex&)</a></li>
+		</ul>
+		<p>cloning is disabled</p>
+	</aside>
+	
+	</div>
+</body>
+</html>

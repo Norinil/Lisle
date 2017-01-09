@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<link rel="stylesheet" type="text/css" href="class.css" />
+	<title>lisle::event</title>
+</head>
+<body>
+	<header><iframe src="header.html" width="100%" height="160px" seamless></iframe></header>
+
+	<div id="main">
+	<nav><iframe src="nav.html" width="192px" height="600px" seamless></iframe></nav>
+
+	<section>
+		<h1>Event</h1>
+		
+		<p>An event is a synchronization device that allows threads to suspend execution and relinquish the processor until the event gets signaled.</p>
+		<p>The basic operations on events are:
+			<ul>
+				<li>signal, notify or broadcast the event,</li>
+				<li>wait for the event, suspending the calling thread's execution until another thread signals the event.</li>
+			</ul>
+		</p>
+		<p>Cloning is disabled for the event class.</p>
+		
+		<article id="dtor">
+			<h2>~event ()</h2>
+			<p>Destroys this event, freeing all resources it might hold. No thread must be waiting on this event on entrance.</p>
+			<ul>
+				<li><a href="exception.html#permission">permission</a> is thrown if there are waiting threads for this event.</li>
+			</ul>
+		</article>
+		
+		<article id="ctor">
+			<h2>event ()</h2>
+			<p>Constructs a new event.</p>
+			<ul>
+				<li><a href="exception.html#resource">resource</a> is thrown if there are not enough system resources to create a new event.</li>
+			</ul>
+		</article>
+		
+		<article id="signal">
+			<h2>void signal | notify ()</h2>
+			<p>Restarts one of the threads that are waiting on this event. If no thred is waiting on the event then nothing happens. If several threads are waiting on the event then exactly one is restarted, but is is not specified which.</p>
+			<p>Best practice is to lock the associated <a href="mutex.html">mutex</a> before signaling the event, however this is not enforced. This guarantees that the event cannot be signaled (and thus ignored) between the time a thread locks the associated <a href="mutex.hml">mutex</a> and the time another thread waits on the event.</p>
+		</article>
+		
+		<article id="broadcast">
+			<h2>void broadcast ()</h2>
+			<p>Restarts all threads that are waiting on this event. If no thread is waiting on the event then nothing happens.</p>
+		</article>
+		
+		<article id="wait">
+			<h2>void wait ()</h2>
+			<p>Waits for this event to be signaled. The calling thread's execution is suspended and doesn't consume any CPU time until the event is signaled.</p>
+			<ul>
+				<li><a href="exception.html#thrcancel">thrcancel</a> is thrown if calling thread was canceled.</li>
+			</ul>
+		</article>
+
+		<article id="waitduration">
+			<h2>void wait (const <a href="duration.html">duration&</a> span)</h2>
+			<p>This function behaves the same as wait(), but the wait is restricted to a given time span. If the event was not signaled within the given time frame then a <a href="exception.html#timeout">timeout</a> exception is thrown.</p>
+			</p>The given time span specifies a relative time and can only be strictly positive. If the <a href="duration.html">duration</a> is negative or zero then the function immediately throws the <a href="exception#timeout">timeout</a> exception.</p>
+			<ul>
+				<li><a href="exception.html#timeout">timeout</a> is thrown if the wait timed out.
+				<li><a href="exception.html#thrcancel">thrcancel</a> is thrown if calling thread was canceled.</li>
+			</ul>
+		</article>
+	</section>
+	
+	<aside>
+		<h1>Synopsis</h1>
+		<p>#include &lt;lisle/event.h&gt;</p>
+		<h2>class event</h2>
+		<ul class="public">
+			<li><a href="#dtor">~event ()</a></li>
+			<li><a href="#ctor">event ()</a></li>
+			<li><a href="#signal">void signal | notify ()</a></li>
+			<li><a href="#broadcast">void broadcast ()</a></li>
+			<li><a href="#wait">void wait ()</a></li>
+			<li><a href="#waitduration">void wait (const duration&)</a></li>
+		</ul>
+		<p>cloning is disabled</p>
+
+		<h1>Cancellation</h1>
+		<p>Both wait functions are cancellation points. If a thread is cancelled while suspended in one of these functions then the thread immediately resumes execution and throws the Lisle internal cancel exception. Thus the complete call stack is unwound and all object destructors executed.</p>
+		
+		<h1>Async-Signal Safety</h1>
+		<p>The event functions are not async-signal safe, and should not be called from a signal handler. In particular, calling either signal() or broadcast() from a signal handler may deadlock the calling thread.</p>
+	</aside>
+	
+	</div>
+</body>
+</html>
